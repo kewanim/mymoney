@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Account, Debt } from "@/lib/types";
 import { formatCurrency, formatDate, todayIso } from "@/lib/format";
-import { Card, SectionHeading, EmptyState, Badge, IconButton } from "./ui";
+import { Card, SectionHeading, EmptyState, Badge, IconButton, PrimaryButton } from "./ui";
 
 export function DebtsSection({
   debts,
@@ -27,13 +27,9 @@ export function DebtsSection({
         title="Debts"
         count={debts.length}
         action={
-          <button
-            type="button"
-            onClick={() => setShowForm((v) => !v)}
-            className="rounded-md bg-teal px-3 py-1 text-sm font-medium text-teal-ink hover:opacity-90"
-          >
+          <PrimaryButton type="button" onClick={() => setShowForm((v) => !v)}>
             {showForm ? "Cancel" : "+ Add"}
-          </button>
+          </PrimaryButton>
         }
       />
 
@@ -210,12 +206,7 @@ function DebtForm({
         <input type="checkbox" checked={isLate} onChange={(e) => setIsLate(e.target.checked)} />
         Already late
       </label>
-      <button
-        type="submit"
-        className="rounded-md bg-teal px-3 py-1 text-sm font-medium text-teal-ink hover:opacity-90"
-      >
-        Save
-      </button>
+      <PrimaryButton type="submit">Save</PrimaryButton>
     </form>
   );
 }

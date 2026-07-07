@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Account, Bill, BillRecurrence } from "@/lib/types";
 import { displayBillStatus, formatCurrency, formatDate, todayIso } from "@/lib/format";
-import { Card, SectionHeading, EmptyState, Badge, IconButton } from "./ui";
+import { Card, SectionHeading, EmptyState, Badge, IconButton, PrimaryButton } from "./ui";
 
 const RECURRENCE_LABEL: Record<BillRecurrence, string> = {
   none: "One-time",
@@ -49,14 +49,9 @@ export function BillsSection({
         title="Bills"
         count={bills.length}
         action={
-          <button
-            type="button"
-            onClick={() => setShowForm((v) => !v)}
-            disabled={accounts.length === 0}
-            className="rounded-md bg-teal px-3 py-1 text-sm font-medium text-teal-ink hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-          >
+          <PrimaryButton type="button" onClick={() => setShowForm((v) => !v)} disabled={accounts.length === 0}>
             {showForm ? "Cancel" : "+ Add"}
-          </button>
+          </PrimaryButton>
         }
       />
 
@@ -206,12 +201,7 @@ function BillForm({
         <input type="checkbox" checked={autopay} onChange={(e) => setAutopay(e.target.checked)} />
         Autopay
       </label>
-      <button
-        type="submit"
-        className="rounded-md bg-teal px-3 py-1 text-sm font-medium text-teal-ink hover:opacity-90"
-      >
-        Save
-      </button>
+      <PrimaryButton type="submit">Save</PrimaryButton>
     </form>
   );
 }

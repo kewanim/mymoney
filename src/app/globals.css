@@ -1,28 +1,38 @@
 @import "tailwindcss";
 
+/* Futuristic-elegant palette: deep space base, cyan/violet accent duo.
+   Dark is the primary identity; light keeps the same accent hues on a
+   cool, bright ground rather than inverting into a generic gray UI. */
 :root {
-  --paper: #f6f4ee;
-  --paper-raised: #ffffff;
-  --ink: #22262b;
-  --ink-soft: #5b6169;
-  --teal: #2f6e68;
-  --teal-ink: #f6f4ee;
-  --line: #dedad0;
-  --good: #3f7d5c;
-  --good-bg: #e7f0ea;
-  --warn: #a8781f;
-  --warn-bg: #f5ecda;
-  --critical: #b5453a;
-  --critical-bg: #f6e3e0;
+  --paper: #06070d;
+  --paper-raised: #10131f;
+  --paper-raised-2: #171b2b;
+  --ink: #e7ebf7;
+  --ink-soft: #8890ab;
+  --teal: #2ee6c8;
+  --teal-ink: #04140f;
+  --violet: #9d7bff;
+  --violet-bg: rgba(157, 123, 255, 0.14);
+  --line: #232841;
+  --glow: rgba(46, 230, 200, 0.28);
+  --good: #35e0a1;
+  --good-bg: rgba(53, 224, 161, 0.13);
+  --warn: #ffcd5c;
+  --warn-bg: rgba(255, 205, 92, 0.13);
+  --critical: #ff7086;
+  --critical-bg: rgba(255, 112, 134, 0.13);
 }
 
 @theme inline {
   --color-paper: var(--paper);
   --color-paper-raised: var(--paper-raised);
+  --color-paper-raised-2: var(--paper-raised-2);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-teal: var(--teal);
   --color-teal-ink: var(--teal-ink);
+  --color-violet: var(--violet);
+  --color-violet-bg: var(--violet-bg);
   --color-line: var(--line);
   --color-good: var(--good);
   --color-good-bg: var(--good-bg);
@@ -34,25 +44,73 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --paper: #1a1c1e;
-    --paper-raised: #232527;
-    --ink: #ece9e2;
-    --ink-soft: #9a9d97;
-    --teal: #63a89f;
-    --teal-ink: #12201e;
-    --line: #34363a;
-    --good: #6bb489;
-    --good-bg: #1c2a22;
-    --warn: #d9ac5a;
-    --warn-bg: #2c2515;
-    --critical: #d97a6c;
-    --critical-bg: #331f1c;
+    --paper: #f2f4fb;
+    --paper-raised: #ffffff;
+    --paper-raised-2: #e9ecf7;
+    --ink: #12141f;
+    --ink-soft: #5b6178;
+    --teal: #0d9488;
+    --teal-ink: #f2f4fb;
+    --violet: #6d4fd6;
+    --violet-bg: rgba(109, 79, 214, 0.1);
+    --line: #dde2f0;
+    --glow: rgba(13, 148, 136, 0.18);
+    --good: #128a5e;
+    --good-bg: #dff5ea;
+    --warn: #97660a;
+    --warn-bg: #fbf0d9;
+    --critical: #c8354f;
+    --critical-bg: #fbe4e9;
   }
 }
 
+:root[data-theme="dark"] {
+  --paper: #06070d;
+  --paper-raised: #10131f;
+  --paper-raised-2: #171b2b;
+  --ink: #e7ebf7;
+  --ink-soft: #8890ab;
+  --teal: #2ee6c8;
+  --teal-ink: #04140f;
+  --violet: #9d7bff;
+  --violet-bg: rgba(157, 123, 255, 0.14);
+  --line: #232841;
+  --glow: rgba(46, 230, 200, 0.28);
+  --good: #35e0a1;
+  --good-bg: rgba(53, 224, 161, 0.13);
+  --warn: #ffcd5c;
+  --warn-bg: rgba(255, 205, 92, 0.13);
+  --critical: #ff7086;
+  --critical-bg: rgba(255, 112, 134, 0.13);
+}
+
+:root[data-theme="light"] {
+  --paper: #f2f4fb;
+  --paper-raised: #ffffff;
+  --paper-raised-2: #e9ecf7;
+  --ink: #12141f;
+  --ink-soft: #5b6178;
+  --teal: #0d9488;
+  --teal-ink: #f2f4fb;
+  --violet: #6d4fd6;
+  --violet-bg: rgba(109, 79, 214, 0.1);
+  --line: #dde2f0;
+  --glow: rgba(13, 148, 136, 0.18);
+  --good: #128a5e;
+  --good-bg: #dff5ea;
+  --warn: #97660a;
+  --warn-bg: #fbf0d9;
+  --critical: #c8354f;
+  --critical-bg: #fbe4e9;
+}
+
 body {
-  background: var(--paper);
+  background:
+    radial-gradient(ellipse 900px 500px at 15% -10%, var(--violet-bg), transparent),
+    radial-gradient(ellipse 900px 500px at 85% 0%, var(--glow), transparent),
+    var(--paper);
   color: var(--ink);
+  min-height: 100%;
 }

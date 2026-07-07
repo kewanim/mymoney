@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Account, AccountType } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
-import { Card, SectionHeading, EmptyState, Badge, IconButton } from "./ui";
+import { Card, SectionHeading, EmptyState, Badge, IconButton, PrimaryButton } from "./ui";
 
 const ACCOUNT_TYPE_LABEL: Record<AccountType, string> = {
   checking: "Checking",
@@ -29,13 +29,9 @@ export function AccountsSection({
         title="Accounts"
         count={accounts.length}
         action={
-          <button
-            type="button"
-            onClick={() => setShowForm((v) => !v)}
-            className="rounded-md bg-teal px-3 py-1 text-sm font-medium text-teal-ink hover:opacity-90"
-          >
+          <PrimaryButton type="button" onClick={() => setShowForm((v) => !v)}>
             {showForm ? "Cancel" : "+ Add"}
-          </button>
+          </PrimaryButton>
         }
       />
 
@@ -153,12 +149,7 @@ function AccountForm({ onSubmit }: { onSubmit: (input: Omit<Account, "id">) => v
           </Field>
         </>
       )}
-      <button
-        type="submit"
-        className="rounded-md bg-teal px-3 py-1 text-sm font-medium text-teal-ink hover:opacity-90"
-      >
-        Save
-      </button>
+      <PrimaryButton type="submit">Save</PrimaryButton>
     </form>
   );
 }

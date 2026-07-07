@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { accountStore, billStore, debtStore, incomeStore } from "@/lib/storage";
 import { ReminderBanner } from "./ReminderBanner";
 import { SummaryStrip } from "./SummaryStrip";
@@ -10,53 +11,77 @@ import { BillsSection } from "./BillsSection";
 import { DebtsSection } from "./DebtsSection";
 import { IncomeSection } from "./IncomeSection";
 import { SmartEntry } from "./SmartEntry";
+import { Tabs } from "./Tabs";
+
+type TabId = "overview" | "bills" | "debts" | "accounts" | "income";
 
 export function Dashboard() {
   const accounts = accountStore.useAll();
   const bills = billStore.useAll();
   const debts = debtStore.useAll();
   const income = incomeStore.useAll();
+  const [tab, setTab] = useState<TabId>("overview");
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-10">
+    <div className="mx-auto flex max-w-4xl flex-col gap-5 px-4 py-8 sm:py-10">
       <header>
         <p className="text-xs font-semibold uppercase tracking-wide text-teal">MyMoney</p>
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
       </header>
 
-      <ReminderBanner bills={bills} debts={debts} />
-
-      <SummaryStrip accounts={accounts} bills={bills} debts={debts} />
-
-      <PayFirstSection bills={bills} debts={debts} />
-
-      <IncomeTargetSection accounts={accounts} bills={bills} debts={debts} income={income} />
-
-      <SmartEntry
-        accounts={accounts}
-        onAddBill={(input) => billStore.create({ ...input, status: "upcoming" })}
-        onAddDebt={debtStore.create}
+      <Tabs
+        tabs={[
+          { id: "overview", label: "Overview" },
+          { id: "bills", label: "Bills", count: bills.length },
+          { id: "debts", label: "Debts", count: debts.length },
+          { id: "accounts", label: "Accounts", count: accounts.length },
+          { id: "income", label: "Income", count: income.length },
+        ]}
+        active={tab}
+        onChange={(id) => setTab(id as TabId)}
       />
 
-      <AccountsSection accounts={accounts} onAdd={accountStore.create} onRemove={accountStore.remove} />
+      {tab === "overview" && (
+        <div className="flex flex-col gap-5">
+          <ReminderBanner bills={bills} debts={debts} />
+          <SummaryStrip accounts={accounts} bills={bills} debts={debts} />
+          <PayFirstSection bills={bills} debts={debts} />
+          <IncomeTargetSection accounts={accounts} bills={bills} debts={debts} income={income} />
+          <SmartEntry
+            accounts={accounts}
+            onAddBill={(input) => billStore.create({ ...input, status: "upcoming" })}
+            onAddDebt={debtStore.create}
+          />
+        </div>
+      )}
 
-      <BillsSection
-        bills={bills}
-        accounts={accounts}
-        onAdd={(input) => billStore.create({ ...input, status: "upcoming" })}
-        onRemove={billStore.remove}
-        onTogglePaid={(id, paid) => billStore.update(id, { status: paid ? "paid" : "upcoming" })}
-      />
+      {tab === "bills" && (
+        <BillsSection
+          bills={bills}
+          accounts={accounts}
+          onAdd={(input) => billStore.create({ ...input, status: "upcoming" })}
+          onRemove={billStore.remove}
+          onTogglePaid={(id, paid) => billStore.update(id, { status: paid ? "paid" : "upcoming" })}
+        />
+      )}
 
-      <DebtsSection
-        debts={debts}
-        accounts={accounts}
-        onAdd={debtStore.create}
-        onRemove={debtStore.remove}
-        onToggleLate={(id, isLate) => debtStore.update(id, { isLate })}
-      />
+      {tab === "debts" && (
+        <DebtsSection
+          debts={debts}
+          accounts={accounts}
+          onAdd={debtStore.create}
+          onRemove={debtStore.remove}
+          onToggleLate={(id, isLate) => debtStore.update(id, { isLate })}
+        />
+      )}
 
-      <IncomeSection income={income} onAdd={incomeStore.create} onRemove={incomeStore.remove} />
+      {tab === "accounts" && (
+        <AccountsSection accounts={accounts} onAdd={accountStore.create} onRemove={accountStore.remove} />
+      )}
+
+      {tab === "income" && (
+        <IncomeSection income={income} onAdd={incomeStore.create} onRemove={incomeStore.remove} />
+      )}
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Income, IncomeType, RecurrenceFrequency } from "@/lib/types";
 import { formatCurrency, formatDate, todayIso } from "@/lib/format";
-import { Card, SectionHeading, EmptyState, Badge, IconButton } from "./ui";
+import { Card, SectionHeading, EmptyState, Badge, IconButton, PrimaryButton } from "./ui";
 
 const RECURRENCE_LABEL: Record<RecurrenceFrequency, string> = {
   weekly: "Weekly",
@@ -32,13 +32,9 @@ export function IncomeSection({
         title="Income"
         count={income.length}
         action={
-          <button
-            type="button"
-            onClick={() => setShowForm((v) => !v)}
-            className="rounded-md bg-teal px-3 py-1 text-sm font-medium text-teal-ink hover:opacity-90"
-          >
+          <PrimaryButton type="button" onClick={() => setShowForm((v) => !v)}>
             {showForm ? "Cancel" : "+ Add"}
-          </button>
+          </PrimaryButton>
         }
       />
 
@@ -159,12 +155,7 @@ function IncomeForm({ onSubmit }: { onSubmit: (input: Omit<Income, "id">) => voi
           className="rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
         />
       </Field>
-      <button
-        type="submit"
-        className="rounded-md bg-teal px-3 py-1 text-sm font-medium text-teal-ink hover:opacity-90"
-      >
-        Save
-      </button>
+      <PrimaryButton type="submit">Save</PrimaryButton>
     </form>
   );
 }
