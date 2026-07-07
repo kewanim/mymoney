@@ -24,9 +24,9 @@ export function IncomeTargetSection({
 
   return (
     <Card>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold tracking-tight">Income target</h2>
-        <div className="flex gap-1">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="shrink-0 text-lg font-semibold tracking-tight text-nowrap">Income target</h2>
+        <div className="flex shrink-0 gap-1">
           {HORIZONS.map((days) => (
             <button
               key={days}

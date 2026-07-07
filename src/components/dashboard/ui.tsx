@@ -21,9 +21,9 @@ export function SectionHeading({
   action: ReactNode;
 }) {
   return (
-    <div className="mb-4 flex items-center justify-between gap-3">
-      <div className="flex items-baseline gap-2">
-        <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="flex shrink-0 items-baseline gap-2">
+        <h2 className="text-lg font-semibold tracking-tight text-nowrap">{title}</h2>
         <span className="rounded-full bg-line/60 px-2 py-0.5 font-mono text-xs text-ink-soft">
           {count}
         </span>

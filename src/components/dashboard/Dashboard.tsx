@@ -23,7 +23,7 @@ export function Dashboard() {
   const [tab, setTab] = useState<TabId>("overview");
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-5 px-4 py-8 sm:py-10">
+    <div className="mx-auto flex w-full min-w-0 max-w-4xl flex-col gap-5 px-4 py-8 sm:py-10">
       <header>
         <p className="text-xs font-semibold uppercase tracking-wide text-teal">MyMoney</p>
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>

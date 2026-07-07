@@ -126,13 +126,13 @@ export function SmartEntry({
 
   return (
     <Card>
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold tracking-tight">Add with Claude</h2>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex shrink-0 items-center gap-2">
+          <h2 className="text-lg font-semibold tracking-tight text-nowrap">Add with Claude</h2>
           <Badge tone="accent">Powered by Claude</Badge>
         </div>
         {entries.length === 0 && (
-          <div className="flex gap-1 rounded-full border border-line bg-line/30 p-1">
+          <div className="flex shrink-0 gap-1 rounded-full border border-line bg-line/30 p-1">
             <ModeButton active={mode === "describe"} onClick={() => setMode("describe")}>
               Describe
             </ModeButton>
