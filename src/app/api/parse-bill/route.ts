@@ -64,6 +64,13 @@ export async function POST(request: Request) {
     return NextResponse.json(response.parsed_output);
   } catch (err) {
     console.error("parse-bill error", err);
+    if (err instanceof Anthropic.APIError) {
+      const body = err.error as { error?: { message?: string } } | undefined;
+      return NextResponse.json(
+        { error: body?.error?.message ?? "Something went wrong talking to Claude." },
+        { status: err.status ?? 502 },
+      );
+    }
     return NextResponse.json({ error: "Something went wrong talking to Claude." }, { status: 502 });
   }
 }
