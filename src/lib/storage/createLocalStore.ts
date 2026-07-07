@@ -90,9 +90,14 @@ export function createLocalStore<T extends Entity>(storageKey: string) {
     notify([]);
   }
 
+  function setAll(items: T[]): void {
+    writeAll(storageKey, items);
+    notify(items);
+  }
+
   function useAll(): T[] {
     return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   }
 
-  return { getAll, getById, create, update, remove, clear, useAll };
+  return { getAll, getById, create, update, remove, clear, setAll, useAll };
 }

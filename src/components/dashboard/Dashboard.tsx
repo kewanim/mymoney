@@ -11,6 +11,7 @@ import { BillsSection } from "./BillsSection";
 import { DebtsSection } from "./DebtsSection";
 import { IncomeSection } from "./IncomeSection";
 import { SmartEntry } from "./SmartEntry";
+import { BackupSection } from "./BackupSection";
 import { Tabs } from "./Tabs";
 
 type TabId = "overview" | "bills" | "debts" | "accounts" | "income";
@@ -52,6 +53,7 @@ export function Dashboard() {
             onAddBill={(input) => billStore.create({ ...input, status: "upcoming" })}
             onAddDebt={debtStore.create}
           />
+          <BackupSection />
         </div>
       )}
 
