@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
+import ExcelJS from "exceljs";
 import { todayIso } from "@/lib/format";
 
 // Server-only route — this is the one place the Anthropic API key is read.
@@ -11,6 +12,39 @@ import { todayIso } from "@/lib/format";
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
 const MAX_TEXT_CHARS = 20000;
 const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"] as const;
+const XLSX_MEDIA_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+// Cell values from ExcelJS can be primitives, Dates, or rich objects
+// (formula results, hyperlinks, rich text runs) — normalize each to plain text.
+function cellText(value: ExcelJS.CellValue): string {
+  if (value == null) return "";
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  if (typeof value === "object") {
+    if ("result" in value && value.result != null) return String(value.result);
+    if ("text" in value && value.text != null) return String(value.text);
+    if ("richText" in value && Array.isArray(value.richText)) {
+      return value.richText.map((run) => run.text ?? "").join("");
+    }
+    return "";
+  }
+  return String(value);
+}
+
+async function xlsxToText(buffer: Buffer): Promise<string> {
+  const workbook = new ExcelJS.Workbook();
+  // exceljs's bundled type declarations predate @types/node's generic Buffer<T>,
+  // so a real Buffer instance still needs a cast to satisfy its exact shape.
+  await workbook.xlsx.load(buffer as unknown as Parameters<typeof workbook.xlsx.load>[0]);
+  const parts: string[] = [];
+  workbook.eachSheet((worksheet) => {
+    parts.push(`--- Sheet: ${worksheet.name} ---`);
+    worksheet.eachRow((row) => {
+      const values = (row.values as ExcelJS.CellValue[]).slice(1);
+      parts.push(values.map(cellText).join(", "));
+    });
+  });
+  return parts.join("\n");
+}
 
 const ParsedEntrySchema = z.object({
   kind: z.enum(["bill", "debt"]),
@@ -73,6 +107,9 @@ export async function POST(request: Request) {
 
   if (file) {
     const buffer = Buffer.from(await file.arrayBuffer());
+    const isXlsx = file.type === XLSX_MEDIA_TYPE || /\.xlsx$/i.test(file.name);
+    const isLegacyXls = /\.xls$/i.test(file.name) && !isXlsx;
+
     if (file.type === "application/pdf") {
       contentParts.push({
         type: "document",
@@ -92,6 +129,22 @@ export async function POST(request: Request) {
           media_type: file.type as (typeof SUPPORTED_IMAGE_TYPES)[number],
           data: buffer.toString("base64"),
         },
+      });
+    } else if (isLegacyXls) {
+      return NextResponse.json(
+        { error: "Old-format .xls isn't supported — save it as .xlsx and try again." },
+        { status: 400 },
+      );
+    } else if (isXlsx) {
+      let sheetText: string;
+      try {
+        sheetText = await xlsxToText(buffer);
+      } catch {
+        return NextResponse.json({ error: "Couldn't read that spreadsheet." }, { status: 400 });
+      }
+      contentParts.push({
+        type: "text",
+        text: `Spreadsheet "${file.name}":\n${sheetText.slice(0, MAX_TEXT_CHARS)}`,
       });
     } else {
       const raw = buffer.toString("utf-8").slice(0, MAX_TEXT_CHARS);

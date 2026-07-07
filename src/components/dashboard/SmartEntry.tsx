@@ -160,12 +160,12 @@ export function SmartEntry({
       {entries.length === 0 && mode === "upload" && (
         <div className="flex flex-col gap-2">
           <label className="text-sm text-ink-soft">
-            A PDF, CSV/text export, or a screenshot of a bill — Claude will pull out whatever it can
-            find.
+            A PDF, spreadsheet (.xlsx), CSV/text export, or a screenshot of a bill — Claude will pull
+            out whatever it can find.
           </label>
           <input
             type="file"
-            accept=".pdf,.csv,.txt,image/*"
+            accept=".pdf,.csv,.txt,.xlsx,image/*"
             disabled={loading}
             onChange={handleFileChange}
             className="text-sm text-ink-soft file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-gradient-to-r file:from-teal file:to-violet file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-teal-ink"
