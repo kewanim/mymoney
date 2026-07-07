@@ -26,16 +26,16 @@ export function IncomeTargetSection({
     <Card>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="shrink-0 text-lg font-semibold tracking-tight text-nowrap">Income target</h2>
-        <div className="flex shrink-0 gap-1">
+        <div className="flex shrink-0 gap-0.5 rounded-full bg-field p-1">
           {HORIZONS.map((days) => (
             <button
               key={days}
               type="button"
               onClick={() => setHorizonDays(days)}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium ${
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-all duration-150 ${
                 days === horizonDays
-                  ? "bg-teal text-teal-ink"
-                  : "bg-line/60 text-ink-soft hover:bg-line"
+                  ? "bg-gradient-to-br from-teal to-violet text-teal-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]"
+                  : "text-ink-soft"
               }`}
             >
               {days}d
@@ -51,11 +51,11 @@ export function IncomeTargetSection({
       </div>
 
       {result.gap <= 0 ? (
-        <p className="rounded-lg border border-line bg-good-bg px-4 py-3 text-sm text-good">
+        <p className="rounded-2xl bg-good-bg px-4 py-3 text-sm text-good">
           You&apos;re covered for the next {horizonDays} days — no extra earning needed.
         </p>
       ) : (
-        <div className="flex flex-col gap-2 rounded-lg border border-line px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 rounded-2xl bg-field px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs text-ink-soft">Earn at least</p>
             <p className="font-mono text-2xl font-semibold tabular-nums">

@@ -57,7 +57,7 @@ function Tile({
   tone?: "critical";
 }) {
   return (
-    <div className="rounded-xl border border-line bg-paper-raised p-4 shadow-sm">
+    <div className="glass overflow-hidden rounded-3xl p-4 backdrop-blur-2xl backdrop-saturate-150">
       <p className="font-mono text-2xl font-semibold tabular-nums" style={tone === "critical" ? { color: "var(--critical)" } : undefined}>
         {value}
       </p>

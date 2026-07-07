@@ -13,14 +13,14 @@ export function PayFirstSection({ bills, debts }: { bills: Bill[]; debts: Debt[]
       {recommendations.length === 0 ? (
         <EmptyState label="Nothing urgent right now — everything's on track." />
       ) : (
-        <ol className="flex flex-col gap-2">
+        <ol className="divide-field-border divide-y overflow-hidden rounded-2xl bg-field">
           {recommendations.map((item, index) => (
             <li
               key={`${item.kind}-${item.id}`}
-              className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2"
+              className="flex items-center justify-between gap-3 px-4 py-3"
             >
               <div className="flex items-center gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal font-mono text-xs font-semibold text-teal-ink">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal to-violet font-mono text-xs font-semibold text-teal-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]">
                   {index + 1}
                 </span>
                 <div className="flex flex-col gap-1">

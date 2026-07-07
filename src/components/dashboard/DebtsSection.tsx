@@ -3,7 +3,17 @@
 import { useState } from "react";
 import type { Account, Debt } from "@/lib/types";
 import { formatCurrency, formatDate, todayIso } from "@/lib/format";
-import { Card, SectionHeading, EmptyState, Badge, IconButton, PrimaryButton } from "./ui";
+import {
+  Card,
+  SectionHeading,
+  EmptyState,
+  Badge,
+  IconButton,
+  PrimaryButton,
+  GroupedList,
+  GroupedRow,
+  Switch,
+} from "./ui";
 
 export function DebtsSection({
   debts,
@@ -46,15 +56,12 @@ export function DebtsSection({
       {sorted.length === 0 ? (
         <EmptyState label="No debts on record. Anything overdue or off-cycle goes here." />
       ) : (
-        <ul className="flex flex-col gap-2">
+        <GroupedList>
           {sorted.map((debt) => {
             const today = todayIso();
             const penaltyHit = debt.penaltyAfterDate && debt.penaltyAfterDate < today;
             return (
-              <li
-                key={debt.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2"
-              >
+              <GroupedRow key={debt.id}>
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{debt.name}</span>
@@ -78,22 +85,19 @@ export function DebtsSection({
                   <span className="font-mono text-sm tabular-nums">
                     {formatCurrency(debt.currentBalance)}
                   </span>
-                  <label className="flex items-center gap-1 text-xs text-ink-soft">
-                    <input
-                      type="checkbox"
-                      checked={debt.isLate}
-                      onChange={(e) => onToggleLate(debt.id, e.target.checked)}
-                    />
-                    Late
-                  </label>
+                  <Switch
+                    checked={debt.isLate}
+                    onChange={(checked) => onToggleLate(debt.id, checked)}
+                    label={`Mark ${debt.name} late`}
+                  />
                   <IconButton label={`Remove ${debt.name}`} onClick={() => onRemove(debt.id)}>
                     ✕
                   </IconButton>
                 </div>
-              </li>
+              </GroupedRow>
             );
           })}
-        </ul>
+        </GroupedList>
       )}
     </Card>
   );
@@ -131,13 +135,16 @@ function DebtForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4 flex flex-wrap items-end gap-2 rounded-lg bg-line/30 p-3">
+    <form
+      onSubmit={handleSubmit}
+      className="mb-4 flex flex-wrap items-end gap-2 rounded-2xl border border-field-border p-3"
+    >
       <Field label="Name">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Old medical bill"
-          className="w-36 rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+          className="w-36 rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
         />
       </Field>
       <Field label="Balance">
@@ -147,7 +154,7 @@ function DebtForm({
           value={currentBalance}
           onChange={(e) => setCurrentBalance(e.target.value)}
           placeholder="0.00"
-          className="w-24 rounded-md border border-line bg-paper-raised px-2 py-1 text-sm tabular-nums"
+          className="w-24 rounded-xl border border-field-border bg-field px-2 py-1 text-sm tabular-nums"
         />
       </Field>
       {accounts.length > 0 && (
@@ -155,7 +162,7 @@ function DebtForm({
           <select
             value={accountId}
             onChange={(e) => setAccountId(e.target.value)}
-            className="rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+            className="rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
           >
             <option value="">None</option>
             {accounts.map((a) => (
@@ -171,7 +178,7 @@ function DebtForm({
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
-          className="rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+          className="rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
         />
       </Field>
       <Field label="Min. payment">
@@ -181,7 +188,7 @@ function DebtForm({
           value={minimumPayment}
           onChange={(e) => setMinimumPayment(e.target.value)}
           placeholder="0.00"
-          className="w-24 rounded-md border border-line bg-paper-raised px-2 py-1 text-sm tabular-nums"
+          className="w-24 rounded-xl border border-field-border bg-field px-2 py-1 text-sm tabular-nums"
         />
       </Field>
       <Field label="Penalty amount">
@@ -191,7 +198,7 @@ function DebtForm({
           value={penaltyAmount}
           onChange={(e) => setPenaltyAmount(e.target.value)}
           placeholder="0.00"
-          className="w-24 rounded-md border border-line bg-paper-raised px-2 py-1 text-sm tabular-nums"
+          className="w-24 rounded-xl border border-field-border bg-field px-2 py-1 text-sm tabular-nums"
         />
       </Field>
       <Field label="Penalty after">
@@ -199,13 +206,13 @@ function DebtForm({
           type="date"
           value={penaltyAfterDate}
           onChange={(e) => setPenaltyAfterDate(e.target.value)}
-          className="rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+          className="rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
         />
       </Field>
-      <label className="mb-1.5 flex items-center gap-1.5 text-sm text-ink-soft">
-        <input type="checkbox" checked={isLate} onChange={(e) => setIsLate(e.target.checked)} />
+      <div className="mb-1.5 flex items-center gap-2 text-sm text-ink-soft">
+        <Switch checked={isLate} onChange={setIsLate} label="Already late" />
         Already late
-      </label>
+      </div>
       <PrimaryButton type="submit">Save</PrimaryButton>
     </form>
   );

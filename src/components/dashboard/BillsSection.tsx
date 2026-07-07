@@ -3,7 +3,17 @@
 import { useState } from "react";
 import type { Account, Bill, BillRecurrence } from "@/lib/types";
 import { displayBillStatus, formatCurrency, formatDate, todayIso } from "@/lib/format";
-import { Card, SectionHeading, EmptyState, Badge, IconButton, PrimaryButton } from "./ui";
+import {
+  Card,
+  SectionHeading,
+  EmptyState,
+  Badge,
+  IconButton,
+  PrimaryButton,
+  GroupedList,
+  GroupedRow,
+  Switch,
+} from "./ui";
 
 const RECURRENCE_LABEL: Record<BillRecurrence, string> = {
   none: "One-time",
@@ -72,15 +82,12 @@ export function BillsSection({
       {sorted.length === 0 ? (
         <EmptyState label="No bills yet. Add your first one to see it here." />
       ) : (
-        <ul className="flex flex-col gap-2">
+        <GroupedList>
           {sorted.map((bill) => {
             const status = displayBillStatus(bill);
             const account = accounts.find((a) => a.id === bill.accountId);
             return (
-              <li
-                key={bill.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2"
-              >
+              <GroupedRow key={bill.id}>
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{bill.name}</span>
@@ -95,22 +102,19 @@ export function BillsSection({
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-sm tabular-nums">{formatCurrency(bill.amount)}</span>
-                  <label className="flex items-center gap-1 text-xs text-ink-soft">
-                    <input
-                      type="checkbox"
-                      checked={bill.status === "paid"}
-                      onChange={(e) => onTogglePaid(bill.id, e.target.checked)}
-                    />
-                    Paid
-                  </label>
+                  <Switch
+                    checked={bill.status === "paid"}
+                    onChange={(checked) => onTogglePaid(bill.id, checked)}
+                    label={`Mark ${bill.name} paid`}
+                  />
                   <IconButton label={`Remove ${bill.name}`} onClick={() => onRemove(bill.id)}>
                     ✕
                   </IconButton>
                 </div>
-              </li>
+              </GroupedRow>
             );
           })}
-        </ul>
+        </GroupedList>
       )}
     </Card>
   );
@@ -144,13 +148,16 @@ function BillForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4 flex flex-wrap items-end gap-2 rounded-lg bg-line/30 p-3">
+    <form
+      onSubmit={handleSubmit}
+      className="mb-4 flex flex-wrap items-end gap-2 rounded-2xl border border-field-border p-3"
+    >
       <Field label="Name">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Rent"
-          className="w-32 rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+          className="w-32 rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
         />
       </Field>
       <Field label="Amount">
@@ -160,7 +167,7 @@ function BillForm({
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="0.00"
-          className="w-24 rounded-md border border-line bg-paper-raised px-2 py-1 text-sm tabular-nums"
+          className="w-24 rounded-xl border border-field-border bg-field px-2 py-1 text-sm tabular-nums"
         />
       </Field>
       <Field label="Due date">
@@ -168,14 +175,14 @@ function BillForm({
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
-          className="rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+          className="rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
         />
       </Field>
       <Field label="Account">
         <select
           value={accountId}
           onChange={(e) => setAccountId(e.target.value)}
-          className="rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+          className="rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
         >
           {accounts.map((a) => (
             <option key={a.id} value={a.id}>
@@ -188,7 +195,7 @@ function BillForm({
         <select
           value={recurrence}
           onChange={(e) => setRecurrence(e.target.value as BillRecurrence)}
-          className="rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+          className="rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
         >
           {Object.entries(RECURRENCE_LABEL).map(([value, label]) => (
             <option key={value} value={value}>
@@ -197,10 +204,10 @@ function BillForm({
           ))}
         </select>
       </Field>
-      <label className="mb-1.5 flex items-center gap-1.5 text-sm text-ink-soft">
-        <input type="checkbox" checked={autopay} onChange={(e) => setAutopay(e.target.checked)} />
+      <div className="mb-1.5 flex items-center gap-2 text-sm text-ink-soft">
+        <Switch checked={autopay} onChange={setAutopay} label="Autopay" />
         Autopay
-      </label>
+      </div>
       <PrimaryButton type="submit">Save</PrimaryButton>
     </form>
   );

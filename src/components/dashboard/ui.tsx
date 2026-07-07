@@ -2,10 +2,7 @@ import type { ReactNode } from "react";
 
 export function Card({ children }: { children: ReactNode }) {
   return (
-    <div
-      className="rounded-2xl border border-line bg-paper-raised/90 p-5 backdrop-blur-md transition-shadow duration-300"
-      style={{ boxShadow: "0 12px 40px -20px var(--glow)" }}
-    >
+    <div className="glass overflow-hidden rounded-[28px] p-5 backdrop-blur-2xl backdrop-saturate-150">
       {children}
     </div>
   );
@@ -23,8 +20,8 @@ export function SectionHeading({
   return (
     <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
       <div className="flex shrink-0 items-baseline gap-2">
-        <h2 className="text-lg font-semibold tracking-tight text-nowrap">{title}</h2>
-        <span className="rounded-full bg-line/60 px-2 py-0.5 font-mono text-xs text-ink-soft">
+        <h2 className="text-[19px] font-semibold tracking-tight text-nowrap">{title}</h2>
+        <span className="rounded-full bg-field px-2 py-0.5 font-mono text-xs text-ink-soft">
           {count}
         </span>
       </div>
@@ -35,14 +32,14 @@ export function SectionHeading({
 
 export function EmptyState({ label }: { label: string }) {
   return (
-    <p className="rounded-lg border border-dashed border-line px-4 py-6 text-center text-sm text-ink-soft">
+    <p className="rounded-2xl border border-dashed border-line px-4 py-6 text-center text-sm text-ink-soft">
       {label}
     </p>
   );
 }
 
 const badgeTones = {
-  neutral: "bg-line/60 text-ink-soft",
+  neutral: "bg-field text-ink-soft",
   good: "bg-good-bg text-good",
   warn: "bg-warn-bg text-warn",
   critical: "bg-critical-bg text-critical",
@@ -58,7 +55,7 @@ export function Badge({
 }) {
   return (
     <span
-      className={`rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${badgeTones[tone]}`}
+      className={`rounded-full px-2 py-0.5 text-xs font-semibold tracking-wide uppercase ${badgeTones[tone]}`}
     >
       {children}
     </span>
@@ -80,7 +77,7 @@ export function IconButton({
       onClick={onClick}
       aria-label={label}
       title={label}
-      className="rounded-md px-1.5 py-0.5 text-ink-soft transition-colors hover:bg-line/50 hover:text-ink"
+      className="rounded-full px-1.5 py-0.5 text-ink-soft transition-colors active:scale-90 hover:bg-field hover:text-ink"
     >
       {children}
     </button>
@@ -94,9 +91,66 @@ export function PrimaryButton({
   return (
     <button
       {...props}
-      className="rounded-md bg-gradient-to-r from-teal to-violet px-3 py-1.5 text-sm font-medium text-teal-ink shadow-[0_0_16px_-4px_var(--glow)] transition-transform duration-150 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+      className="rounded-full bg-gradient-to-br from-teal to-violet px-4 py-1.5 text-sm font-semibold text-teal-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_8px_20px_-8px_var(--glow)] transition-transform duration-150 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100"
     >
       {children}
     </button>
+  );
+}
+
+export function GroupedList({ children }: { children: ReactNode }) {
+  return (
+    <ul className="divide-field-border divide-y overflow-hidden rounded-2xl bg-field">{children}</ul>
+  );
+}
+
+export function GroupedRow({ children }: { children: ReactNode }) {
+  return <li className="flex items-center justify-between gap-3 px-4 py-3">{children}</li>;
+}
+
+export function Switch({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className={`relative h-[26px] w-[44px] shrink-0 rounded-full transition-colors duration-200 ${
+        checked ? "bg-gradient-to-r from-teal to-violet" : "bg-field"
+      }`}
+    >
+      <span
+        className={`absolute top-[3px] h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
+          checked ? "translate-x-[21px]" : "translate-x-[3px]"
+        }`}
+      />
+    </button>
+  );
+}
+
+export function FieldInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <input
+      {...props}
+      className={`rounded-xl border border-field-border bg-field px-3 py-1.5 text-sm outline-none focus:border-teal/50 ${props.className ?? ""}`}
+    />
+  );
+}
+
+export function FieldSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <select
+      {...props}
+      className={`rounded-xl border border-field-border bg-field px-3 py-1.5 text-sm outline-none focus:border-teal/50 ${props.className ?? ""}`}
+    />
   );
 }

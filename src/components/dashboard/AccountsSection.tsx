@@ -3,7 +3,16 @@
 import { useState } from "react";
 import type { Account, AccountType } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
-import { Card, SectionHeading, EmptyState, Badge, IconButton, PrimaryButton } from "./ui";
+import {
+  Card,
+  SectionHeading,
+  EmptyState,
+  Badge,
+  IconButton,
+  PrimaryButton,
+  GroupedList,
+  GroupedRow,
+} from "./ui";
 
 const ACCOUNT_TYPE_LABEL: Record<AccountType, string> = {
   checking: "Checking",
@@ -47,12 +56,9 @@ export function AccountsSection({
       {accounts.length === 0 ? (
         <EmptyState label="No accounts yet. Add one to tag your bills and debts." />
       ) : (
-        <ul className="flex flex-col gap-2">
+        <GroupedList>
           {accounts.map((account) => (
-            <li
-              key={account.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2"
-            >
+            <GroupedRow key={account.id}>
               <div className="flex items-center gap-2">
                 <span className="font-medium">{account.name}</span>
                 <Badge tone="neutral">{ACCOUNT_TYPE_LABEL[account.type]}</Badge>
@@ -65,9 +71,9 @@ export function AccountsSection({
                   ✕
                 </IconButton>
               </div>
-            </li>
+            </GroupedRow>
           ))}
-        </ul>
+        </GroupedList>
       )}
     </Card>
   );
@@ -93,20 +99,23 @@ function AccountForm({ onSubmit }: { onSubmit: (input: Omit<Account, "id">) => v
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4 flex flex-wrap items-end gap-2 rounded-lg bg-line/30 p-3">
+    <form
+      onSubmit={handleSubmit}
+      className="mb-4 flex flex-wrap items-end gap-2 rounded-2xl border border-field-border p-3"
+    >
       <Field label="Name">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Chase Checking"
-          className="w-36 rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+          className="w-36 rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
         />
       </Field>
       <Field label="Type">
         <select
           value={type}
           onChange={(e) => setType(e.target.value as AccountType)}
-          className="rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+          className="rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
         >
           {Object.entries(ACCOUNT_TYPE_LABEL).map(([value, label]) => (
             <option key={value} value={value}>
@@ -122,7 +131,7 @@ function AccountForm({ onSubmit }: { onSubmit: (input: Omit<Account, "id">) => v
           value={currentBalance}
           onChange={(e) => setCurrentBalance(e.target.value)}
           placeholder="0.00"
-          className="w-28 rounded-md border border-line bg-paper-raised px-2 py-1 text-sm tabular-nums"
+          className="w-28 rounded-xl border border-field-border bg-field px-2 py-1 text-sm tabular-nums"
         />
       </Field>
       {type === "credit_card" && (
@@ -134,7 +143,7 @@ function AccountForm({ onSubmit }: { onSubmit: (input: Omit<Account, "id">) => v
               value={creditLimit}
               onChange={(e) => setCreditLimit(e.target.value)}
               placeholder="0.00"
-              className="w-28 rounded-md border border-line bg-paper-raised px-2 py-1 text-sm tabular-nums"
+              className="w-28 rounded-xl border border-field-border bg-field px-2 py-1 text-sm tabular-nums"
             />
           </Field>
           <Field label="APR %">
@@ -144,7 +153,7 @@ function AccountForm({ onSubmit }: { onSubmit: (input: Omit<Account, "id">) => v
               value={interestRate}
               onChange={(e) => setInterestRate(e.target.value)}
               placeholder="0.00"
-              className="w-20 rounded-md border border-line bg-paper-raised px-2 py-1 text-sm tabular-nums"
+              className="w-20 rounded-xl border border-field-border bg-field px-2 py-1 text-sm tabular-nums"
             />
           </Field>
         </>

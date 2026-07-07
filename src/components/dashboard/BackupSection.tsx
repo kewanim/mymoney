@@ -49,7 +49,7 @@ export function BackupSection() {
           type="file"
           accept="application/json,.json"
           onChange={handleImport}
-          className="text-sm text-ink-soft file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-line/60 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-ink hover:file:bg-line"
+          className="text-sm text-ink-soft file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-field file:px-4 file:py-1.5 file:text-sm file:font-semibold file:text-ink"
         />
       </div>
       {error && <p className="mt-2 text-sm text-critical">{error}</p>}

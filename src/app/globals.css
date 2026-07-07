@@ -1,32 +1,43 @@
 @import "tailwindcss";
 
-/* Futuristic-elegant palette: deep space base, cyan/violet accent duo.
-   Dark is the primary identity; light keeps the same accent hues on a
-   cool, bright ground rather than inverting into a generic gray UI. */
+/* iOS-native Liquid Glass system: a vivid, living gradient backdrop that
+   frosted glass surfaces float above and refract. Dark is the primary
+   identity; light keeps the same teal/violet accent hues, glass tuned
+   brighter/whiter to sit correctly on a light ground. */
 :root {
   --paper: #06070d;
-  --paper-raised: #10131f;
-  --paper-raised-2: #171b2b;
   --ink: #e7ebf7;
   --ink-soft: #8890ab;
   --teal: #2ee6c8;
   --teal-ink: #04140f;
   --violet: #9d7bff;
-  --violet-bg: rgba(157, 123, 255, 0.14);
+  --violet-bg: rgba(157, 123, 255, 0.22);
   --line: #232841;
-  --glow: rgba(46, 230, 200, 0.28);
+  --glow: rgba(46, 230, 200, 0.32);
+
   --good: #35e0a1;
-  --good-bg: rgba(53, 224, 161, 0.13);
+  --good-bg: rgba(53, 224, 161, 0.14);
   --warn: #ffcd5c;
-  --warn-bg: rgba(255, 205, 92, 0.13);
+  --warn-bg: rgba(255, 205, 92, 0.14);
   --critical: #ff7086;
-  --critical-bg: rgba(255, 112, 134, 0.13);
+  --critical-bg: rgba(255, 112, 134, 0.14);
+
+  /* Glass material tokens */
+  --glass-tint: rgba(255, 255, 255, 0.07);
+  --glass-tint-strong: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --glass-highlight: rgba(255, 255, 255, 0.4);
+  --glass-shadow-inset: rgba(0, 0, 0, 0.25);
+  --glass-blur: 32px;
+
+  /* Recessed field fill for inputs nested inside a glass card — blurring
+     glass-on-glass looks muddy, so fields get a flat subtle fill instead. */
+  --field: rgba(255, 255, 255, 0.05);
+  --field-border: rgba(255, 255, 255, 0.12);
 }
 
 @theme inline {
   --color-paper: var(--paper);
-  --color-paper-raised: var(--paper-raised);
-  --color-paper-raised-2: var(--paper-raised-2);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-teal: var(--teal);
@@ -40,70 +51,94 @@
   --color-warn-bg: var(--warn-bg);
   --color-critical: var(--critical);
   --color-critical-bg: var(--critical-bg);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-field: var(--field);
+  --color-field-border: var(--field-border);
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui,
+    "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    --paper: #f2f4fb;
-    --paper-raised: #ffffff;
-    --paper-raised-2: #e9ecf7;
+    --paper: #eef1fb;
     --ink: #12141f;
     --ink-soft: #5b6178;
     --teal: #0d9488;
-    --teal-ink: #f2f4fb;
+    --teal-ink: #ffffff;
     --violet: #6d4fd6;
-    --violet-bg: rgba(109, 79, 214, 0.1);
-    --line: #dde2f0;
-    --glow: rgba(13, 148, 136, 0.18);
+    --violet-bg: rgba(109, 79, 214, 0.14);
+    --line: rgba(20, 24, 40, 0.1);
+    --glow: rgba(13, 148, 136, 0.22);
     --good: #128a5e;
     --good-bg: #dff5ea;
     --warn: #97660a;
     --warn-bg: #fbf0d9;
     --critical: #c8354f;
     --critical-bg: #fbe4e9;
+
+    --glass-tint: rgba(255, 255, 255, 0.55);
+    --glass-tint-strong: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.65);
+    --glass-highlight: rgba(255, 255, 255, 0.85);
+    --glass-shadow-inset: rgba(20, 24, 40, 0.08);
+
+    --field: rgba(15, 23, 42, 0.045);
+    --field-border: rgba(15, 23, 42, 0.1);
   }
 }
 
 :root[data-theme="dark"] {
   --paper: #06070d;
-  --paper-raised: #10131f;
-  --paper-raised-2: #171b2b;
   --ink: #e7ebf7;
   --ink-soft: #8890ab;
   --teal: #2ee6c8;
   --teal-ink: #04140f;
   --violet: #9d7bff;
-  --violet-bg: rgba(157, 123, 255, 0.14);
+  --violet-bg: rgba(157, 123, 255, 0.22);
   --line: #232841;
-  --glow: rgba(46, 230, 200, 0.28);
+  --glow: rgba(46, 230, 200, 0.32);
   --good: #35e0a1;
-  --good-bg: rgba(53, 224, 161, 0.13);
+  --good-bg: rgba(53, 224, 161, 0.14);
   --warn: #ffcd5c;
-  --warn-bg: rgba(255, 205, 92, 0.13);
+  --warn-bg: rgba(255, 205, 92, 0.14);
   --critical: #ff7086;
-  --critical-bg: rgba(255, 112, 134, 0.13);
+  --critical-bg: rgba(255, 112, 134, 0.14);
+
+  --glass-tint: rgba(255, 255, 255, 0.07);
+  --glass-tint-strong: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --glass-highlight: rgba(255, 255, 255, 0.4);
+  --glass-shadow-inset: rgba(0, 0, 0, 0.25);
+
+  --field: rgba(255, 255, 255, 0.05);
+  --field-border: rgba(255, 255, 255, 0.12);
 }
 
 :root[data-theme="light"] {
-  --paper: #f2f4fb;
-  --paper-raised: #ffffff;
-  --paper-raised-2: #e9ecf7;
+  --paper: #eef1fb;
   --ink: #12141f;
   --ink-soft: #5b6178;
   --teal: #0d9488;
-  --teal-ink: #f2f4fb;
+  --teal-ink: #ffffff;
   --violet: #6d4fd6;
-  --violet-bg: rgba(109, 79, 214, 0.1);
-  --line: #dde2f0;
-  --glow: rgba(13, 148, 136, 0.18);
+  --violet-bg: rgba(109, 79, 214, 0.14);
+  --line: rgba(20, 24, 40, 0.1);
+  --glow: rgba(13, 148, 136, 0.22);
   --good: #128a5e;
   --good-bg: #dff5ea;
   --warn: #97660a;
   --warn-bg: #fbf0d9;
   --critical: #c8354f;
   --critical-bg: #fbe4e9;
+
+  --glass-tint: rgba(255, 255, 255, 0.55);
+  --glass-tint-strong: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-highlight: rgba(255, 255, 255, 0.85);
+  --glass-shadow-inset: rgba(20, 24, 40, 0.08);
+
+  --field: rgba(15, 23, 42, 0.045);
+  --field-border: rgba(15, 23, 42, 0.1);
 }
 
 html {
@@ -111,11 +146,74 @@ html {
 }
 
 body {
+  position: relative;
   background:
-    radial-gradient(ellipse 900px 500px at 15% -10%, var(--violet-bg), transparent),
-    radial-gradient(ellipse 900px 500px at 85% 0%, var(--glow), transparent),
+    radial-gradient(ellipse 60% 40% at 12% 8%, var(--violet-bg), transparent 60%),
+    radial-gradient(ellipse 55% 45% at 88% 12%, var(--glow), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 50% 100%, var(--violet-bg), transparent 60%),
     var(--paper);
+  background-attachment: fixed;
   color: var(--ink);
   min-height: 100%;
   overflow-x: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body {
+    animation: liquid-drift 40s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes liquid-drift {
+  0% {
+    background-position:
+      0% 0%,
+      0% 0%,
+      0% 0%,
+      0 0;
+  }
+  100% {
+    background-position:
+      4% -3%,
+      -3% 4%,
+      2% -2%,
+      0 0;
+  }
+}
+
+/* Liquid Glass panel: frosted, saturated, with a specular top highlight and
+   inset shadow line for depth. Layer with Tailwind's own backdrop-blur-2xl
+   backdrop-saturate-150 utilities for the blur itself — Tailwind's CSS
+   pipeline silently strips a raw `backdrop-filter` declaration written as
+   plain CSS, so the blur must come from its utility classes, not this rule. */
+.glass {
+  position: relative;
+  background: var(--glass-tint);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 -1px 12px var(--glass-shadow-inset),
+    0 20px 50px -24px var(--glow);
+}
+
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 40%);
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+.glass-strong {
+  background: var(--glass-tint-strong);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
 }

@@ -18,7 +18,7 @@ export function ReminderBanner({ bills, debts }: { bills: Bill[]; debts: Debt[] 
 
   return (
     <div
-      className={`rounded-xl border px-4 py-3 ${
+      className={`rounded-3xl border px-4 py-3 backdrop-blur-2xl ${
         critical ? "border-critical/40 bg-critical-bg" : "border-warn/40 bg-warn-bg"
       }`}
     >

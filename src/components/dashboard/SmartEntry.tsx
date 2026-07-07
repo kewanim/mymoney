@@ -132,7 +132,7 @@ export function SmartEntry({
           <Badge tone="accent">Powered by Claude</Badge>
         </div>
         {entries.length === 0 && (
-          <div className="flex shrink-0 gap-1 rounded-full border border-line bg-line/30 p-1">
+          <div className="flex shrink-0 gap-0.5 rounded-full bg-field p-1">
             <ModeButton active={mode === "describe"} onClick={() => setMode("describe")}>
               Describe
             </ModeButton>
@@ -149,7 +149,7 @@ export function SmartEntry({
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder='e.g. "$150 ticket, due in 14 days, jumps to $200 after"'
-            className="flex-1 rounded-md border border-line bg-paper-raised px-3 py-2 text-sm"
+            className="flex-1 rounded-xl border border-field-border bg-field px-3 py-2 text-sm"
           />
           <PrimaryButton type="submit" disabled={loading || !text.trim()}>
             {loading ? "Thinking…" : "Parse"}
@@ -168,7 +168,7 @@ export function SmartEntry({
             accept=".pdf,.csv,.txt,.xlsx,image/*"
             disabled={loading}
             onChange={handleFileChange}
-            className="text-sm text-ink-soft file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-gradient-to-r file:from-teal file:to-violet file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-teal-ink"
+            className="text-sm text-ink-soft file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-gradient-to-br file:from-teal file:to-violet file:px-4 file:py-1.5 file:text-sm file:font-semibold file:text-teal-ink"
           />
           {loading && <p className="text-sm text-ink-soft">Reading the file…</p>}
         </div>
@@ -182,7 +182,7 @@ export function SmartEntry({
             {entries.map((entry, index) => (
               <div
                 key={index}
-                className="flex flex-col gap-3 rounded-lg border border-line bg-line/20 p-3"
+                className="flex flex-col gap-3 rounded-2xl border border-field-border bg-field p-3"
               >
                 <div className="flex items-center gap-2">
                   <Badge tone="neutral">{entry.kind === "bill" ? "Bill" : "Debt"}</Badge>
@@ -195,7 +195,7 @@ export function SmartEntry({
                       step="0.01"
                       value={entry.amount}
                       onChange={(e) => updateEntry(index, { amount: Number(e.target.value) || 0 })}
-                      className="w-full rounded-md border border-line bg-paper-raised px-2 py-1 text-sm tabular-nums"
+                      className="w-full rounded-xl border border-field-border bg-field px-2 py-1 text-sm tabular-nums"
                     />
                   </Field>
                   <Field label="Due date">
@@ -203,7 +203,7 @@ export function SmartEntry({
                       type="date"
                       value={entry.dueDate ?? ""}
                       onChange={(e) => updateEntry(index, { dueDate: e.target.value })}
-                      className="w-full rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+                      className="w-full rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
                     />
                   </Field>
                   {entry.kind === "bill" && accounts.length > 0 && (
@@ -213,7 +213,7 @@ export function SmartEntry({
                         onChange={(e) =>
                           setAccountByIndex((prev) => ({ ...prev, [index]: e.target.value }))
                         }
-                        className="w-full rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+                        className="w-full rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
                       >
                         {accounts.map((a) => (
                           <option key={a.id} value={a.id}>
@@ -244,7 +244,7 @@ export function SmartEntry({
                   <button
                     type="button"
                     onClick={() => setEntries((prev) => prev.filter((_, i) => i !== index))}
-                    className="rounded-md bg-line/60 px-3 py-1.5 text-sm font-medium text-ink-soft hover:bg-line"
+                    className="rounded-full bg-field px-4 py-1.5 text-sm font-semibold text-ink-soft hover:text-ink"
                   >
                     Remove
                   </button>
@@ -264,7 +264,7 @@ export function SmartEntry({
             <button
               type="button"
               onClick={discardAll}
-              className="rounded-md bg-line/60 px-3 py-1.5 text-sm font-medium text-ink-soft hover:bg-line"
+              className="rounded-full bg-field px-4 py-1.5 text-sm font-semibold text-ink-soft hover:text-ink"
             >
               Discard all
             </button>

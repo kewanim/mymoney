@@ -3,7 +3,16 @@
 import { useState } from "react";
 import type { Income, IncomeType, RecurrenceFrequency } from "@/lib/types";
 import { formatCurrency, formatDate, todayIso } from "@/lib/format";
-import { Card, SectionHeading, EmptyState, Badge, IconButton, PrimaryButton } from "./ui";
+import {
+  Card,
+  SectionHeading,
+  EmptyState,
+  Badge,
+  IconButton,
+  PrimaryButton,
+  GroupedList,
+  GroupedRow,
+} from "./ui";
 
 const RECURRENCE_LABEL: Record<RecurrenceFrequency, string> = {
   weekly: "Weekly",
@@ -50,12 +59,9 @@ export function IncomeSection({
       {sorted.length === 0 ? (
         <EmptyState label="No income logged yet. Add what's expected to sharpen your earning target." />
       ) : (
-        <ul className="flex flex-col gap-2">
+        <GroupedList>
           {sorted.map((entry) => (
-            <li
-              key={entry.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2"
-            >
+            <GroupedRow key={entry.id}>
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{entry.source}</span>
@@ -76,9 +82,9 @@ export function IncomeSection({
                   ✕
                 </IconButton>
               </div>
-            </li>
+            </GroupedRow>
           ))}
-        </ul>
+        </GroupedList>
       )}
     </Card>
   );
@@ -103,13 +109,16 @@ function IncomeForm({ onSubmit }: { onSubmit: (input: Omit<Income, "id">) => voi
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4 flex flex-wrap items-end gap-2 rounded-lg bg-line/30 p-3">
+    <form
+      onSubmit={handleSubmit}
+      className="mb-4 flex flex-wrap items-end gap-2 rounded-2xl border border-field-border p-3"
+    >
       <Field label="Source">
         <input
           value={source}
           onChange={(e) => setSource(e.target.value)}
           placeholder="Freelance client"
-          className="w-36 rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+          className="w-36 rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
         />
       </Field>
       <Field label="Amount">
@@ -119,14 +128,14 @@ function IncomeForm({ onSubmit }: { onSubmit: (input: Omit<Income, "id">) => voi
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="0.00"
-          className="w-24 rounded-md border border-line bg-paper-raised px-2 py-1 text-sm tabular-nums"
+          className="w-24 rounded-xl border border-field-border bg-field px-2 py-1 text-sm tabular-nums"
         />
       </Field>
       <Field label="Type">
         <select
           value={type}
           onChange={(e) => setType(e.target.value as IncomeType)}
-          className="rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+          className="rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
         >
           <option value="recurring">Recurring</option>
           <option value="one_time">One-time</option>
@@ -137,7 +146,7 @@ function IncomeForm({ onSubmit }: { onSubmit: (input: Omit<Income, "id">) => voi
           <select
             value={recurrence}
             onChange={(e) => setRecurrence(e.target.value as RecurrenceFrequency)}
-            className="rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+            className="rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
           >
             {Object.entries(RECURRENCE_LABEL).map(([value, label]) => (
               <option key={value} value={value}>
@@ -152,7 +161,7 @@ function IncomeForm({ onSubmit }: { onSubmit: (input: Omit<Income, "id">) => voi
           type="date"
           value={nextExpectedDate}
           onChange={(e) => setNextExpectedDate(e.target.value)}
-          className="rounded-md border border-line bg-paper-raised px-2 py-1 text-sm"
+          className="rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
         />
       </Field>
       <PrimaryButton type="submit">Save</PrimaryButton>
