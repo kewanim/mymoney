@@ -19,12 +19,12 @@ export function PayFirstSection({ bills, debts }: { bills: Bill[]; debts: Debt[]
               key={`${item.kind}-${item.id}`}
               className="flex items-center justify-between gap-3 px-4 py-3"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal to-violet font-mono text-xs font-semibold text-teal-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]">
                   {index + 1}
                 </span>
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="font-medium">{item.name}</span>
                     <Badge tone="neutral">{item.kind === "bill" ? "Bill" : "Debt"}</Badge>
                   </div>
@@ -35,7 +35,7 @@ export function PayFirstSection({ bills, debts }: { bills: Bill[]; debts: Debt[]
                   </div>
                 </div>
               </div>
-              <span className="font-mono text-sm tabular-nums">{formatCurrency(item.amount)}</span>
+              <span className="shrink-0 font-mono text-sm tabular-nums">{formatCurrency(item.amount)}</span>
             </li>
           ))}
         </ol>

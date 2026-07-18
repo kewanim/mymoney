@@ -77,7 +77,7 @@ export function IconButton({
       onClick={onClick}
       aria-label={label}
       title={label}
-      className="rounded-full px-1.5 py-0.5 text-ink-soft transition-colors active:scale-90 hover:bg-field hover:text-ink"
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors active:scale-90 hover:bg-field hover:text-ink"
     >
       {children}
     </button>
@@ -124,15 +124,19 @@ export function Switch({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative h-[26px] w-[44px] shrink-0 rounded-full transition-colors duration-200 ${
-        checked ? "bg-gradient-to-r from-teal to-violet" : "bg-field"
-      }`}
+      className="flex shrink-0 items-center justify-center p-[9px]"
     >
       <span
-        className={`absolute top-[3px] h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
-          checked ? "translate-x-[21px]" : "translate-x-[3px]"
+        className={`relative h-[26px] w-[44px] rounded-full transition-colors duration-200 ${
+          checked ? "bg-gradient-to-r from-teal to-violet" : "bg-field"
         }`}
-      />
+      >
+        <span
+          className={`absolute top-[3px] h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
+            checked ? "translate-x-[21px]" : "translate-x-[3px]"
+          }`}
+        />
+      </span>
     </button>
   );
 }

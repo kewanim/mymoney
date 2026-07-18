@@ -62,13 +62,13 @@ export function DebtsSection({
             const penaltyHit = debt.penaltyAfterDate && debt.penaltyAfterDate < today;
             return (
               <GroupedRow key={debt.id}>
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="font-medium">{debt.name}</span>
                     {debt.isLate && <Badge tone="critical">Late</Badge>}
                     {penaltyHit && <Badge tone="warn">Penalty applied</Badge>}
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-ink-soft">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-soft">
                     {debt.dueDate && <span>Due {formatDate(debt.dueDate)}</span>}
                     {debt.minimumPayment != null && (
                       <span>· Min {formatCurrency(debt.minimumPayment)}</span>
@@ -81,7 +81,7 @@ export function DebtsSection({
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex shrink-0 items-center gap-3">
                   <span className="font-mono text-sm tabular-nums">
                     {formatCurrency(debt.currentBalance)}
                   </span>

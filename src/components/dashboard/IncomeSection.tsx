@@ -62,8 +62,8 @@ export function IncomeSection({
         <GroupedList>
           {sorted.map((entry) => (
             <GroupedRow key={entry.id}>
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="font-medium">{entry.source}</span>
                   <Badge tone="neutral">
                     {entry.type === "recurring" && entry.recurrence
@@ -71,12 +71,12 @@ export function IncomeSection({
                       : "One-time"}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-ink-soft">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-soft">
                   {entry.nextExpectedDate && <span>Next {formatDate(entry.nextExpectedDate)}</span>}
                   {entry.dateReceived && <span>Received {formatDate(entry.dateReceived)}</span>}
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex shrink-0 items-center gap-3">
                 <span className="font-mono text-sm tabular-nums">{formatCurrency(entry.amount)}</span>
                 <IconButton label={`Remove ${entry.source}`} onClick={() => onRemove(entry.id)}>
                   ✕

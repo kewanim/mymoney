@@ -59,11 +59,11 @@ export function AccountsSection({
         <GroupedList>
           {accounts.map((account) => (
             <GroupedRow key={account.id}>
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
                 <span className="font-medium">{account.name}</span>
                 <Badge tone="neutral">{ACCOUNT_TYPE_LABEL[account.type]}</Badge>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex shrink-0 items-center gap-3">
                 <span className="font-mono text-sm tabular-nums">
                   {formatCurrency(account.currentBalance)}
                 </span>

@@ -28,8 +28,8 @@ export function ReminderBanner({ bills, debts }: { bills: Bill[]; debts: Debt[] 
       <ul className="mt-1.5 flex flex-col gap-1 text-sm">
         {items.map((item) => (
           <li key={item.label} className="flex items-center justify-between gap-3">
-            <span>{item.label}</span>
-            <span className="font-mono tabular-nums">{formatCurrency(item.amount)}</span>
+            <span className="min-w-0 flex-1">{item.label}</span>
+            <span className="shrink-0 font-mono tabular-nums">{formatCurrency(item.amount)}</span>
           </li>
         ))}
       </ul>

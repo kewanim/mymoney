@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { accountStore, billStore, debtStore, incomeStore } from "@/lib/storage";
 import { ReminderBanner } from "./ReminderBanner";
 import { SummaryStrip } from "./SummaryStrip";
@@ -30,6 +30,20 @@ export function Dashboard() {
   const debts = debtStore.useAll();
   const income = incomeStore.useAll();
   const [tab, setTab] = useState<TabId>("overview");
+
+  // iOS Safari doesn't blur a focused input when you tap elsewhere on the
+  // page, so the software keyboard stays open until you tap another field.
+  useEffect(() => {
+    function dismissKeyboardOnOutsideTap(e: PointerEvent) {
+      const active = document.activeElement as HTMLElement | null;
+      if (!active || (active.tagName !== "INPUT" && active.tagName !== "TEXTAREA")) return;
+      const target = e.target as HTMLElement;
+      if (active.contains(target) || target.closest("input, textarea, select")) return;
+      active.blur();
+    }
+    document.addEventListener("pointerdown", dismissKeyboardOnOutsideTap);
+    return () => document.removeEventListener("pointerdown", dismissKeyboardOnOutsideTap);
+  }, []);
 
   return (
     <div className="mx-auto flex w-full min-w-0 max-w-4xl flex-col">

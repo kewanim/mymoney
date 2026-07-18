@@ -88,19 +88,19 @@ export function BillsSection({
             const account = accounts.find((a) => a.id === bill.accountId);
             return (
               <GroupedRow key={bill.id}>
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="font-medium">{bill.name}</span>
                     <Badge tone={STATUS_TONE[status]}>{STATUS_LABEL[status]}</Badge>
                     {bill.autopay && <Badge tone="neutral">Autopay</Badge>}
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-ink-soft">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-soft">
                     <span>Due {formatDate(bill.dueDate)}</span>
                     {account && <span>· {account.name}</span>}
                     {bill.recurrence !== "none" && <span>· {RECURRENCE_LABEL[bill.recurrence]}</span>}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex shrink-0 items-center gap-3">
                   <span className="font-mono text-sm tabular-nums">{formatCurrency(bill.amount)}</span>
                   <Switch
                     checked={bill.status === "paid"}
