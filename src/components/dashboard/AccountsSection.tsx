@@ -64,7 +64,11 @@ export function AccountsSection({
                 <Badge tone="neutral">{ACCOUNT_TYPE_LABEL[account.type]}</Badge>
               </div>
               <div className="flex shrink-0 items-center gap-3">
-                <span className="font-mono text-sm tabular-nums">
+                <span
+                  className="font-mono text-sm tabular-nums"
+                  style={account.type === "credit_card" ? { color: "var(--critical)" } : undefined}
+                >
+                  {account.type === "credit_card" ? "Owes " : ""}
                   {formatCurrency(account.currentBalance)}
                 </span>
                 <IconButton label={`Remove ${account.name}`} onClick={() => onRemove(account.id)}>
@@ -124,7 +128,7 @@ function AccountForm({ onSubmit }: { onSubmit: (input: Omit<Account, "id">) => v
           ))}
         </select>
       </Field>
-      <Field label="Balance">
+      <Field label={type === "credit_card" ? "Balance owed" : "Current balance"}>
         <input
           type="number"
           step="0.01"
@@ -134,6 +138,11 @@ function AccountForm({ onSubmit }: { onSubmit: (input: Omit<Account, "id">) => v
           className="w-28 rounded-xl border border-field-border bg-field px-2 py-1 text-sm tabular-nums"
         />
       </Field>
+      {type === "credit_card" && (
+        <p className="w-full text-xs text-ink-soft">
+          Enter what you currently owe on this card — not your credit limit.
+        </p>
+      )}
       {type === "credit_card" && (
         <>
           <Field label="Credit limit">

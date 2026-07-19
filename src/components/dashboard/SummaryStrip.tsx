@@ -29,7 +29,12 @@ export function SummaryStrip({
     overdueBills.reduce((sum, b) => sum + b.amount, 0) +
     lateDebts.reduce((sum, d) => sum + d.currentBalance, 0);
 
-  const totalBalance = accounts.reduce((sum, a) => sum + a.currentBalance, 0);
+  // A credit card's balance is what's owed on it, not cash on hand — it
+  // subtracts from the net total instead of adding to it.
+  const totalBalance = accounts.reduce(
+    (sum, a) => sum + (a.type === "credit_card" ? -a.currentBalance : a.currentBalance),
+    0,
+  );
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

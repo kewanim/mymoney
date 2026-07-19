@@ -66,7 +66,10 @@ export function BillsSection({
       />
 
       {accounts.length === 0 && (
-        <p className="mb-4 text-sm text-ink-soft">Add an account first so you can tag bills to it.</p>
+        <p className="mb-4 rounded-2xl bg-warn-bg px-4 py-3 text-sm font-medium text-warn">
+          Add an account first (Accounts tab) — every bill needs one to draw from, so + Add stays
+          off until you do.
+        </p>
       )}
 
       {showForm && (
