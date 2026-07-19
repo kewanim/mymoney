@@ -11,6 +11,7 @@ import { BillsSection } from "./BillsSection";
 import { DebtsSection } from "./DebtsSection";
 import { IncomeSection } from "./IncomeSection";
 import { SmartEntry } from "./SmartEntry";
+import { AISettingsSection } from "./AISettingsSection";
 import { BackupSection } from "./BackupSection";
 import { BottomTabBar } from "./BottomTabBar";
 
@@ -64,6 +65,7 @@ export function Dashboard() {
             <SummaryStrip accounts={accounts} bills={bills} debts={debts} />
             <PayFirstSection bills={bills} debts={debts} />
             <IncomeTargetSection accounts={accounts} bills={bills} debts={debts} income={income} />
+            <AISettingsSection />
             <SmartEntry
               accounts={accounts}
               onAddBill={(input) => billStore.create({ ...input, status: "upcoming" })}

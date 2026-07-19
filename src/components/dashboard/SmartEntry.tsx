@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Account, Bill, BillRecurrence, Debt } from "@/lib/types";
 import { todayIso } from "@/lib/format";
+import { useAISettings, PROVIDER_LABEL } from "@/lib/aiSettings";
 import { Card, Badge, PrimaryButton } from "./ui";
 
 interface ParsedEntry {
@@ -33,8 +34,13 @@ export function SmartEntry({
   const [error, setError] = useState<string | null>(null);
   const [entries, setEntries] = useState<ParsedEntry[]>([]);
   const [accountByIndex, setAccountByIndex] = useState<Record<number, string>>({});
+  const aiSettings = useAISettings();
+  const providerLabel = PROVIDER_LABEL[aiSettings.provider];
+  const apiKey = aiSettings.apiKeys[aiSettings.provider] ?? "";
 
   async function submitForm(formData: FormData) {
+    formData.set("provider", aiSettings.provider);
+    formData.set("apiKey", apiKey);
     setLoading(true);
     setError(null);
     try {
@@ -128,10 +134,12 @@ export function SmartEntry({
     <Card>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex shrink-0 items-center gap-2">
-          <h2 className="text-lg font-semibold tracking-tight text-nowrap">Add with Claude</h2>
-          <Badge tone="accent">Powered by Claude</Badge>
+          <h2 className="text-lg font-semibold tracking-tight text-nowrap">
+            Add with {providerLabel}
+          </h2>
+          <Badge tone="accent">Powered by {providerLabel}</Badge>
         </div>
-        {entries.length === 0 && (
+        {entries.length === 0 && apiKey && (
           <div className="flex shrink-0 gap-0.5 rounded-full bg-field p-1">
             <ModeButton active={mode === "describe"} onClick={() => setMode("describe")}>
               Describe
@@ -143,7 +151,13 @@ export function SmartEntry({
         )}
       </div>
 
-      {entries.length === 0 && mode === "describe" && (
+      {entries.length === 0 && !apiKey && (
+        <p className="rounded-2xl border border-dashed border-line px-4 py-6 text-center text-sm text-ink-soft">
+          Add your {providerLabel} API key below to use Smart Entry.
+        </p>
+      )}
+
+      {entries.length === 0 && apiKey && mode === "describe" && (
         <form onSubmit={handleDescribeSubmit} className="flex gap-2">
           <input
             value={text}
@@ -157,11 +171,11 @@ export function SmartEntry({
         </form>
       )}
 
-      {entries.length === 0 && mode === "upload" && (
+      {entries.length === 0 && apiKey && mode === "upload" && (
         <div className="flex flex-col gap-2">
           <label className="text-sm text-ink-soft">
-            A PDF, spreadsheet (.xlsx), CSV/text export, or a screenshot of a bill — Claude will pull
-            out whatever it can find.
+            A PDF, spreadsheet (.xlsx), CSV/text export, or a screenshot of a bill —{" "}
+            {providerLabel} will pull out whatever it can find.
           </label>
           <input
             type="file"

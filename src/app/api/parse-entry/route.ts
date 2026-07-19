@@ -1,18 +1,28 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
+import OpenAI from "openai";
+import { zodResponseFormat } from "openai/helpers/zod";
+import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 import ExcelJS from "exceljs";
 import { todayIso } from "@/lib/format";
 
-// Server-only route — this is the one place the Anthropic API key is read.
-// Never expose it to the client; that's the whole reason this route exists
-// instead of calling Claude directly from the browser.
+// Server-only route. The API key comes from the client on every request —
+// each user brings their own key (Claude/ChatGPT/Gemini), stored only in
+// their browser's localStorage, never on this server.
 
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
 const MAX_TEXT_CHARS = 20000;
 const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"] as const;
 const XLSX_MEDIA_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+type AIProvider = "claude" | "openai" | "gemini";
+const PROVIDER_LABEL: Record<AIProvider, string> = {
+  claude: "Claude",
+  openai: "ChatGPT",
+  gemini: "Gemini",
+};
 
 // Cell values from ExcelJS can be primitives, Dates, or rich objects
 // (formula results, hyperlinks, rich text runs) — normalize each to plain text.
@@ -60,6 +70,7 @@ const ParsedEntrySchema = z.object({
 const ParsedEntriesSchema = z.object({
   entries: z.array(ParsedEntrySchema).max(25),
 });
+type ParsedEntries = z.infer<typeof ParsedEntriesSchema>;
 
 const SYSTEM_PROMPT = `You extract structured bill or debt information from whatever you're given — a short plain-English description, a scanned document, a screenshot, or a CSV/text export.
 
@@ -74,36 +85,29 @@ Only set "recurrence" when clearly a repeating cadence; otherwise null.
 Only set "penaltyAmount"/"penaltyAfterDate" when an amount increases after a date; otherwise null.
 Use null for "notes" unless there's meaningful extra context worth keeping.`;
 
-type ContentPart =
-  | { type: "text"; text: string }
-  | { type: "document"; source: { type: "base64"; media_type: "application/pdf"; data: string } }
-  | {
-      type: "image";
-      source: { type: "base64"; media_type: (typeof SUPPORTED_IMAGE_TYPES)[number]; data: string };
-    };
+// Provider-agnostic representation of what the user submitted — each
+// adapter below maps this to its own provider's wire format.
+type RawInput =
+  | { kind: "text"; text: string }
+  | { kind: "pdf"; base64: string }
+  | { kind: "image"; base64: string; mediaType: (typeof SUPPORTED_IMAGE_TYPES)[number] };
 
-export async function POST(request: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: "Smart entry isn't set up yet — add ANTHROPIC_API_KEY to your environment to use it." },
-      { status: 501 },
-    );
-  }
-
+async function buildRawInputs(request: Request): Promise<
+  | { ok: true; inputs: RawInput[] }
+  | { ok: false; status: number; error: string }
+> {
   const form = await request.formData();
   const text = (form.get("text") as string | null)?.trim() ?? "";
   const file = form.get("file") as File | null;
 
   if (!text && !file) {
-    return NextResponse.json({ error: "Add a description or a file first." }, { status: 400 });
+    return { ok: false, status: 400, error: "Add a description or a file first." };
   }
-
   if (file && file.size > MAX_FILE_BYTES) {
-    return NextResponse.json({ error: "That file is too big — keep it under 8MB." }, { status: 400 });
+    return { ok: false, status: 400, error: "That file is too big — keep it under 8MB." };
   }
 
-  const contentParts: ContentPart[] = [];
+  const inputs: RawInput[] = [];
 
   if (file) {
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -111,77 +115,187 @@ export async function POST(request: Request) {
     const isLegacyXls = /\.xls$/i.test(file.name) && !isXlsx;
 
     if (file.type === "application/pdf") {
-      contentParts.push({
-        type: "document",
-        source: { type: "base64", media_type: "application/pdf", data: buffer.toString("base64") },
-      });
+      inputs.push({ kind: "pdf", base64: buffer.toString("base64") });
     } else if (file.type.startsWith("image/")) {
       if (!SUPPORTED_IMAGE_TYPES.includes(file.type as (typeof SUPPORTED_IMAGE_TYPES)[number])) {
-        return NextResponse.json(
-          { error: "That image type isn't supported — try PNG, JPG, GIF, or WebP." },
-          { status: 400 },
-        );
+        return { ok: false, status: 400, error: "That image type isn't supported — try PNG, JPG, GIF, or WebP." };
       }
-      contentParts.push({
-        type: "image",
-        source: {
-          type: "base64",
-          media_type: file.type as (typeof SUPPORTED_IMAGE_TYPES)[number],
-          data: buffer.toString("base64"),
-        },
+      inputs.push({
+        kind: "image",
+        base64: buffer.toString("base64"),
+        mediaType: file.type as (typeof SUPPORTED_IMAGE_TYPES)[number],
       });
     } else if (isLegacyXls) {
-      return NextResponse.json(
-        { error: "Old-format .xls isn't supported — save it as .xlsx and try again." },
-        { status: 400 },
-      );
+      return { ok: false, status: 400, error: "Old-format .xls isn't supported — save it as .xlsx and try again." };
     } else if (isXlsx) {
       let sheetText: string;
       try {
         sheetText = await xlsxToText(buffer);
       } catch {
-        return NextResponse.json({ error: "Couldn't read that spreadsheet." }, { status: 400 });
+        return { ok: false, status: 400, error: "Couldn't read that spreadsheet." };
       }
-      contentParts.push({
-        type: "text",
-        text: `Spreadsheet "${file.name}":\n${sheetText.slice(0, MAX_TEXT_CHARS)}`,
-      });
+      inputs.push({ kind: "text", text: `Spreadsheet "${file.name}":\n${sheetText.slice(0, MAX_TEXT_CHARS)}` });
     } else {
       const raw = buffer.toString("utf-8").slice(0, MAX_TEXT_CHARS);
-      contentParts.push({ type: "text", text: `File "${file.name}":\n${raw}` });
+      inputs.push({ kind: "text", text: `File "${file.name}":\n${raw}` });
     }
   }
 
-  contentParts.push({
-    type: "text",
+  inputs.push({
+    kind: "text",
     text: `Today's date is ${todayIso()}.${text ? ` Description: "${text}"` : ""}`,
   });
 
+  return { ok: true, inputs };
+}
+
+async function extractWithClaude(apiKey: string, inputs: RawInput[]): Promise<ParsedEntries> {
   const client = new Anthropic({ apiKey });
+  const content = inputs.map((input) => {
+    if (input.kind === "text") return { type: "text" as const, text: input.text };
+    if (input.kind === "pdf") {
+      return {
+        type: "document" as const,
+        source: { type: "base64" as const, media_type: "application/pdf" as const, data: input.base64 },
+      };
+    }
+    return {
+      type: "image" as const,
+      source: { type: "base64" as const, media_type: input.mediaType, data: input.base64 },
+    };
+  });
+
+  const response = await client.messages.parse({
+    model: "claude-haiku-4-5",
+    max_tokens: 2000,
+    system: SYSTEM_PROMPT,
+    messages: [{ role: "user", content }],
+    output_config: { format: zodOutputFormat(ParsedEntriesSchema) },
+  });
+
+  if (!response.parsed_output) throw new Error("Couldn't find anything to extract.");
+  return response.parsed_output;
+}
+
+async function extractWithOpenAI(apiKey: string, inputs: RawInput[]): Promise<ParsedEntries> {
+  if (inputs.some((input) => input.kind === "pdf")) {
+    throw new Error("PDF uploads aren't supported with ChatGPT yet — try Claude or Gemini for PDFs.");
+  }
+
+  const client = new OpenAI({ apiKey });
+  const content = inputs.map((input) => {
+    if (input.kind === "text") return { type: "text" as const, text: input.text };
+    if (input.kind === "pdf") throw new Error("PDF uploads aren't supported with ChatGPT yet.");
+    return {
+      type: "image_url" as const,
+      image_url: { url: `data:${input.mediaType};base64,${input.base64}` },
+    };
+  });
+
+  const completion = await client.chat.completions.parse({
+    model: "gpt-5-mini",
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content },
+    ],
+    response_format: zodResponseFormat(ParsedEntriesSchema, "parsed_entries"),
+  });
+
+  const parsed = completion.choices[0]?.message?.parsed;
+  if (!parsed) throw new Error("Couldn't find anything to extract.");
+  return parsed;
+}
+
+const GEMINI_JSON_SCHEMA = {
+  type: "object",
+  properties: {
+    entries: {
+      type: "array",
+      maxItems: 25,
+      items: {
+        type: "object",
+        properties: {
+          kind: { type: "string", enum: ["bill", "debt"] },
+          name: { type: "string" },
+          amount: { type: "number" },
+          dueDate: { type: "string", nullable: true },
+          recurrence: {
+            type: "string",
+            enum: ["none", "weekly", "biweekly", "monthly", "yearly"],
+            nullable: true,
+          },
+          penaltyAmount: { type: "number", nullable: true },
+          penaltyAfterDate: { type: "string", nullable: true },
+          notes: { type: "string", nullable: true },
+        },
+        required: ["kind", "name", "amount", "dueDate", "recurrence", "penaltyAmount", "penaltyAfterDate", "notes"],
+      },
+    },
+  },
+  required: ["entries"],
+};
+
+async function extractWithGemini(apiKey: string, inputs: RawInput[]): Promise<ParsedEntries> {
+  const ai = new GoogleGenAI({ apiKey });
+  const input = [
+    { type: "text" as const, text: SYSTEM_PROMPT },
+    ...inputs.map((raw) => {
+      if (raw.kind === "text") return { type: "text" as const, text: raw.text };
+      if (raw.kind === "pdf") {
+        return { type: "document" as const, data: raw.base64, mime_type: "application/pdf" };
+      }
+      return { type: "image" as const, data: raw.base64, mime_type: raw.mediaType };
+    }),
+  ];
+
+  const interaction = await ai.interactions.create({
+    model: "gemini-3.5-flash",
+    input,
+    response_format: { type: "text", mime_type: "application/json", schema: GEMINI_JSON_SCHEMA },
+  });
+
+  const raw = interaction.output_text;
+  if (!raw) throw new Error("Couldn't find anything to extract.");
+  const result = ParsedEntriesSchema.safeParse(JSON.parse(raw));
+  if (!result.success) throw new Error("Gemini's response didn't match the expected shape.");
+  return result.data;
+}
+
+export async function POST(request: Request) {
+  const form = await request.clone().formData();
+  const provider = form.get("provider") as AIProvider | null;
+  const apiKey = (form.get("apiKey") as string | null)?.trim();
+
+  if (!provider || !["claude", "openai", "gemini"].includes(provider)) {
+    return NextResponse.json({ error: "Pick an AI provider in Settings first." }, { status: 400 });
+  }
+  if (!apiKey) {
+    return NextResponse.json(
+      { error: `Add your ${PROVIDER_LABEL[provider]} API key in Settings first.` },
+      { status: 400 },
+    );
+  }
+
+  const built = await buildRawInputs(request);
+  if (!built.ok) {
+    return NextResponse.json({ error: built.error }, { status: built.status });
+  }
 
   try {
-    const response = await client.messages.parse({
-      model: "claude-haiku-4-5",
-      max_tokens: 2000,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: contentParts }],
-      output_config: { format: zodOutputFormat(ParsedEntriesSchema) },
-    });
-
-    if (!response.parsed_output) {
+    const extractors: Record<AIProvider, (key: string, inputs: RawInput[]) => Promise<ParsedEntries>> = {
+      claude: extractWithClaude,
+      openai: extractWithOpenAI,
+      gemini: extractWithGemini,
+    };
+    const result = await extractors[provider](apiKey, built.inputs);
+    if (result.entries.length === 0) {
       return NextResponse.json({ error: "Couldn't find anything to extract." }, { status: 422 });
     }
-
-    return NextResponse.json(response.parsed_output);
+    return NextResponse.json(result);
   } catch (err) {
     console.error("parse-entry error", err);
-    if (err instanceof Anthropic.APIError) {
-      const body = err.error as { error?: { message?: string } } | undefined;
-      return NextResponse.json(
-        { error: body?.error?.message ?? "Something went wrong talking to Claude." },
-        { status: err.status ?? 502 },
-      );
-    }
-    return NextResponse.json({ error: "Something went wrong talking to Claude." }, { status: 502 });
+    const message = err instanceof Error ? err.message : `Something went wrong talking to ${PROVIDER_LABEL[provider]}.`;
+    const status = err instanceof Anthropic.APIError || err instanceof OpenAI.APIError ? (err.status ?? 502) : 502;
+    return NextResponse.json({ error: message }, { status });
   }
 }
