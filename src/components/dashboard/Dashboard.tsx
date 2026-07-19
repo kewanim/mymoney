@@ -12,8 +12,11 @@ import { DebtsSection } from "./DebtsSection";
 import { IncomeSection } from "./IncomeSection";
 import { SmartEntry } from "./SmartEntry";
 import { AISettingsSection } from "./AISettingsSection";
+import { ReminderSettingsSection } from "./ReminderSettingsSection";
 import { BackupSection } from "./BackupSection";
 import { BottomTabBar } from "./BottomTabBar";
+import { useReminderSettings } from "@/lib/reminderSettings";
+import { rescheduleReminders } from "@/lib/notifications";
 
 type TabId = "overview" | "bills" | "debts" | "accounts" | "income";
 
@@ -30,7 +33,17 @@ export function Dashboard() {
   const bills = billStore.useAll();
   const debts = debtStore.useAll();
   const income = incomeStore.useAll();
+  const reminderSettings = useReminderSettings();
   const [tab, setTab] = useState<TabId>("overview");
+
+  // Recompute and reschedule every local notification whenever the
+  // underlying data or the reminder preferences change (no-ops outside the
+  // native app — see rescheduleReminders).
+  useEffect(() => {
+    rescheduleReminders(bills, debts, reminderSettings).catch((err) => {
+      console.error("Failed to reschedule reminders", err);
+    });
+  }, [bills, debts, reminderSettings]);
 
   // iOS Safari doesn't blur a focused input when you tap elsewhere on the
   // page, so the software keyboard stays open until you tap another field.
@@ -66,6 +79,7 @@ export function Dashboard() {
             <PayFirstSection bills={bills} debts={debts} />
             <IncomeTargetSection accounts={accounts} bills={bills} debts={debts} income={income} />
             <AISettingsSection />
+            <ReminderSettingsSection />
             <SmartEntry
               accounts={accounts}
               onAddBill={(input) => billStore.create({ ...input, status: "upcoming" })}
