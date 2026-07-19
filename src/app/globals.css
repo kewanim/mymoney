@@ -185,3 +185,15 @@ body {
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* iOS auto-zooms the page on focus for any text input under 16px, and in
+   the native WKWebView shell that zoom doesn't reliably reset on blur —
+   the whole app is left zoomed in, requiring scroll to see anything. Force
+   every form control to the 16px floor regardless of its Tailwind text
+   size class — a bare type selector loses to Tailwind's `.text-sm`/`.text-xs`
+   class selectors on specificity alone, so this needs !important to win. */
+input,
+select,
+textarea {
+  font-size: 16px !important;
+}
