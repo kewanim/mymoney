@@ -1,26 +1,24 @@
 @import "tailwindcss";
 
-/* iOS-native Liquid Glass system: a vivid, living gradient backdrop that
-   frosted glass surfaces float above and refract. Dark is the primary
-   identity; light keeps the same teal/violet accent hues, glass tuned
-   brighter/whiter to sit correctly on a light ground. */
+/* Simple, native surface: plain white in light mode, plain black in dark
+   mode, with a single flat accent color instead of a decorative gradient. */
 :root {
-  --paper: #06070d;
-  --ink: #e7ebf7;
-  --ink-soft: #8890ab;
-  --teal: #2ee6c8;
-  --teal-ink: #04140f;
-  --violet: #9d7bff;
-  --violet-bg: rgba(157, 123, 255, 0.22);
-  --line: #232841;
-  --glow: rgba(46, 230, 200, 0.32);
+  --paper: #000000;
+  --ink: #ffffff;
+  --ink-soft: #98989d;
+  --teal: #0a84ff;
+  --teal-ink: #ffffff;
+  --violet: #0a84ff;
+  --violet-bg: rgba(10, 132, 255, 0.18);
+  --line: rgba(255, 255, 255, 0.15);
+  --glow: rgba(10, 132, 255, 0.28);
 
-  --good: #35e0a1;
-  --good-bg: rgba(53, 224, 161, 0.14);
-  --warn: #ffcd5c;
-  --warn-bg: rgba(255, 205, 92, 0.14);
-  --critical: #ff7086;
-  --critical-bg: rgba(255, 112, 134, 0.14);
+  --good: #30d158;
+  --good-bg: rgba(48, 209, 88, 0.16);
+  --warn: #ff9f0a;
+  --warn-bg: rgba(255, 159, 10, 0.16);
+  --critical: #ff453a;
+  --critical-bg: rgba(255, 69, 58, 0.16);
 
   /* Glass material tokens */
   --glass-tint: rgba(255, 255, 255, 0.07);
@@ -60,21 +58,21 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --paper: #eef1fb;
-    --ink: #12141f;
-    --ink-soft: #5b6178;
-    --teal: #0d9488;
+    --paper: #ffffff;
+    --ink: #000000;
+    --ink-soft: #6b6b70;
+    --teal: #007aff;
     --teal-ink: #ffffff;
-    --violet: #6d4fd6;
-    --violet-bg: rgba(109, 79, 214, 0.14);
-    --line: rgba(20, 24, 40, 0.1);
-    --glow: rgba(13, 148, 136, 0.22);
-    --good: #128a5e;
-    --good-bg: #dff5ea;
-    --warn: #97660a;
-    --warn-bg: #fbf0d9;
-    --critical: #c8354f;
-    --critical-bg: #fbe4e9;
+    --violet: #007aff;
+    --violet-bg: rgba(0, 122, 255, 0.12);
+    --line: rgba(0, 0, 0, 0.12);
+    --glow: rgba(0, 122, 255, 0.22);
+    --good: #34c759;
+    --good-bg: rgba(52, 199, 89, 0.12);
+    --warn: #ff9500;
+    --warn-bg: rgba(255, 149, 0, 0.12);
+    --critical: #ff3b30;
+    --critical-bg: rgba(255, 59, 48, 0.12);
 
     --glass-tint: rgba(255, 255, 255, 0.55);
     --glass-tint-strong: rgba(255, 255, 255, 0.72);
@@ -88,21 +86,21 @@
 }
 
 :root[data-theme="dark"] {
-  --paper: #06070d;
-  --ink: #e7ebf7;
-  --ink-soft: #8890ab;
-  --teal: #2ee6c8;
-  --teal-ink: #04140f;
-  --violet: #9d7bff;
-  --violet-bg: rgba(157, 123, 255, 0.22);
-  --line: #232841;
-  --glow: rgba(46, 230, 200, 0.32);
-  --good: #35e0a1;
-  --good-bg: rgba(53, 224, 161, 0.14);
-  --warn: #ffcd5c;
-  --warn-bg: rgba(255, 205, 92, 0.14);
-  --critical: #ff7086;
-  --critical-bg: rgba(255, 112, 134, 0.14);
+  --paper: #000000;
+  --ink: #ffffff;
+  --ink-soft: #98989d;
+  --teal: #0a84ff;
+  --teal-ink: #ffffff;
+  --violet: #0a84ff;
+  --violet-bg: rgba(10, 132, 255, 0.18);
+  --line: rgba(255, 255, 255, 0.15);
+  --glow: rgba(10, 132, 255, 0.28);
+  --good: #30d158;
+  --good-bg: rgba(48, 209, 88, 0.16);
+  --warn: #ff9f0a;
+  --warn-bg: rgba(255, 159, 10, 0.16);
+  --critical: #ff453a;
+  --critical-bg: rgba(255, 69, 58, 0.16);
 
   --glass-tint: rgba(255, 255, 255, 0.07);
   --glass-tint-strong: rgba(255, 255, 255, 0.12);
@@ -115,21 +113,21 @@
 }
 
 :root[data-theme="light"] {
-  --paper: #eef1fb;
-  --ink: #12141f;
-  --ink-soft: #5b6178;
-  --teal: #0d9488;
+  --paper: #ffffff;
+  --ink: #000000;
+  --ink-soft: #6b6b70;
+  --teal: #007aff;
   --teal-ink: #ffffff;
-  --violet: #6d4fd6;
-  --violet-bg: rgba(109, 79, 214, 0.14);
-  --line: rgba(20, 24, 40, 0.1);
-  --glow: rgba(13, 148, 136, 0.22);
-  --good: #128a5e;
-  --good-bg: #dff5ea;
-  --warn: #97660a;
-  --warn-bg: #fbf0d9;
-  --critical: #c8354f;
-  --critical-bg: #fbe4e9;
+  --violet: #007aff;
+  --violet-bg: rgba(0, 122, 255, 0.12);
+  --line: rgba(0, 0, 0, 0.12);
+  --glow: rgba(0, 122, 255, 0.22);
+  --good: #34c759;
+  --good-bg: rgba(52, 199, 89, 0.12);
+  --warn: #ff9500;
+  --warn-bg: rgba(255, 149, 0, 0.12);
+  --critical: #ff3b30;
+  --critical-bg: rgba(255, 59, 48, 0.12);
 
   --glass-tint: rgba(255, 255, 255, 0.55);
   --glass-tint-strong: rgba(255, 255, 255, 0.72);
@@ -146,43 +144,14 @@ html {
 }
 
 body {
-  position: relative;
-  background:
-    radial-gradient(ellipse 60% 40% at 12% 8%, var(--violet-bg), transparent 60%),
-    radial-gradient(ellipse 55% 45% at 88% 12%, var(--glow), transparent 60%),
-    radial-gradient(ellipse 70% 50% at 50% 100%, var(--violet-bg), transparent 60%),
-    var(--paper);
-  background-attachment: fixed;
+  background: var(--paper);
   color: var(--ink);
   min-height: 100%;
   overflow-x: hidden;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  body {
-    animation: liquid-drift 40s ease-in-out infinite alternate;
-  }
-}
-
-@keyframes liquid-drift {
-  0% {
-    background-position:
-      0% 0%,
-      0% 0%,
-      0% 0%,
-      0 0;
-  }
-  100% {
-    background-position:
-      4% -3%,
-      -3% 4%,
-      2% -2%,
-      0 0;
-  }
-}
-
-/* Liquid Glass panel: frosted, saturated, with a specular top highlight and
-   inset shadow line for depth. Layer with Tailwind's own backdrop-blur-2xl
+/* Liquid Glass panel: frosted, with a specular top highlight and inset
+   shadow line for depth. Layer with Tailwind's own backdrop-blur-2xl
    backdrop-saturate-150 utilities for the blur itself — Tailwind's CSS
    pipeline silently strips a raw `backdrop-filter` declaration written as
    plain CSS, so the blur must come from its utility classes, not this rule. */
@@ -192,8 +161,7 @@ body {
   border: 1px solid var(--glass-border);
   box-shadow:
     inset 0 1px 0 var(--glass-highlight),
-    inset 0 -1px 12px var(--glass-shadow-inset),
-    0 20px 50px -24px var(--glow);
+    inset 0 -1px 12px var(--glass-shadow-inset);
 }
 
 .glass::before {
