@@ -59,18 +59,11 @@ export function BillsSection({
         title="Bills"
         count={bills.length}
         action={
-          <PrimaryButton type="button" onClick={() => setShowForm((v) => !v)} disabled={accounts.length === 0}>
+          <PrimaryButton type="button" onClick={() => setShowForm((v) => !v)}>
             {showForm ? "Cancel" : "+ Add"}
           </PrimaryButton>
         }
       />
-
-      {accounts.length === 0 && (
-        <p className="mb-4 rounded-2xl bg-warn-bg px-4 py-3 text-sm font-medium text-warn">
-          Add an account first (Accounts tab) — every bill needs one to draw from, so + Add stays
-          off until you do.
-        </p>
-      )}
 
       {showForm && (
         <BillForm
@@ -133,20 +126,20 @@ function BillForm({
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState(todayIso());
-  const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
+  const [accountId, setAccountId] = useState("");
   const [recurrence, setRecurrence] = useState<BillRecurrence>("none");
   const [autopay, setAutopay] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !accountId) return;
+    if (!name.trim()) return;
     onSubmit({
       name: name.trim(),
       amount: Number(amount) || 0,
       dueDate,
-      accountId,
       recurrence,
       autopay,
+      ...(accountId ? { accountId } : {}),
     });
   }
 
@@ -187,6 +180,7 @@ function BillForm({
           onChange={(e) => setAccountId(e.target.value)}
           className="rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
         >
+          <option value="">None yet</option>
           {accounts.map((a) => (
             <option key={a.id} value={a.id}>
               {a.name}

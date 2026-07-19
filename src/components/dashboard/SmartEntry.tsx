@@ -92,14 +92,13 @@ export function SmartEntry({
     const entry = entries[index];
     if (entry.kind === "bill") {
       const accountId = accountByIndex[index];
-      if (!accountId) return;
       onAddBill({
         name: entry.name,
         amount: entry.amount,
         dueDate: entry.dueDate ?? todayIso(),
-        accountId,
         recurrence: entry.recurrence ?? "none",
         autopay: false,
+        ...(accountId ? { accountId } : {}),
         ...(entry.notes ? { notes: entry.notes } : {}),
       });
     } else {
@@ -119,8 +118,6 @@ export function SmartEntry({
   function addAll() {
     // Add from the end so index-based removal doesn't shift pending indexes.
     for (let i = entries.length - 1; i >= 0; i--) {
-      const entry = entries[i];
-      if (entry.kind === "bill" && !accountByIndex[i]) continue;
       addEntry(i);
     }
   }
@@ -229,6 +226,7 @@ export function SmartEntry({
                         }
                         className="w-full rounded-xl border border-field-border bg-field px-2 py-1 text-sm"
                       >
+                        <option value="">None yet</option>
                         {accounts.map((a) => (
                           <option key={a.id} value={a.id}>
                             {a.name}
@@ -248,11 +246,7 @@ export function SmartEntry({
                     )}
                 </div>
                 <div className="flex gap-2">
-                  <PrimaryButton
-                    type="button"
-                    onClick={() => addEntry(index)}
-                    disabled={entry.kind === "bill" && !accountByIndex[index]}
-                  >
+                  <PrimaryButton type="button" onClick={() => addEntry(index)}>
                     Add
                   </PrimaryButton>
                   <button
@@ -263,9 +257,6 @@ export function SmartEntry({
                     Remove
                   </button>
                 </div>
-                {entry.kind === "bill" && accounts.length === 0 && (
-                  <p className="text-xs text-ink-soft">Add an account first to save this bill.</p>
-                )}
               </div>
             ))}
           </div>

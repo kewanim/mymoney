@@ -23,7 +23,7 @@ export interface Bill {
   name: string;
   amount: number;
   dueDate: string;
-  accountId: string;
+  accountId?: string;
   category?: string;
   recurrence: BillRecurrence;
   autopay: boolean;
