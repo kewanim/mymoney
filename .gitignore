@@ -47,3 +47,4 @@ ios/App/*.xcworkspace/xcuserdata/
 ios/App/*.xcodeproj/xcuserdata/
 ios/App/*.xcodeproj/project.xcworkspace/xcuserdata/
 ios/DerivedData/
+ios/build/
