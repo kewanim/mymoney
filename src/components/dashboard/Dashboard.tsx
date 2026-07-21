@@ -94,6 +94,7 @@ export function Dashboard() {
             bills={bills}
             accounts={accounts}
             onAdd={(input) => billStore.create({ ...input, status: "upcoming" })}
+            onUpdate={billStore.update}
             onRemove={billStore.remove}
             onTogglePaid={(id, paid) => billStore.update(id, { status: paid ? "paid" : "upcoming" })}
           />

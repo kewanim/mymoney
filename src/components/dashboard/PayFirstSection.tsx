@@ -17,9 +17,9 @@ export function PayFirstSection({ bills, debts }: { bills: Bill[]; debts: Debt[]
           {recommendations.map((item, index) => (
             <li
               key={`${item.kind}-${item.id}`}
-              className="flex items-center justify-between gap-3 px-4 py-3"
+              className="flex items-start justify-between gap-3 px-4 py-3"
             >
-              <div className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="flex min-w-0 flex-1 items-start gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal to-violet font-mono text-xs font-semibold text-teal-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]">
                   {index + 1}
                 </span>

@@ -105,7 +105,10 @@ export function GroupedList({ children }: { children: ReactNode }) {
 }
 
 export function GroupedRow({ children }: { children: ReactNode }) {
-  return <li className="flex items-center justify-between gap-3 px-4 py-3">{children}</li>;
+  // items-start, not items-center: when the left column wraps to multiple
+  // lines (a long name), centering would float the toggle/amount/remove
+  // button in the middle of the row instead of pinning them to the top.
+  return <li className="flex items-start justify-between gap-3 px-4 py-3">{children}</li>;
 }
 
 export function Switch({

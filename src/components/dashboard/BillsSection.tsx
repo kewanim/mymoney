@@ -37,20 +37,24 @@ const STATUS_LABEL = {
   paid: "Paid",
 } as const;
 
+type FormMode = { type: "add" } | { type: "edit"; bill: Bill };
+
 export function BillsSection({
   bills,
   accounts,
   onAdd,
+  onUpdate,
   onRemove,
   onTogglePaid,
 }: {
   bills: Bill[];
   accounts: Account[];
   onAdd: (input: Omit<Bill, "id" | "status">) => void;
+  onUpdate: (id: string, updates: Partial<Omit<Bill, "id">>) => void;
   onRemove: (id: string) => void;
   onTogglePaid: (id: string, paid: boolean) => void;
 }) {
-  const [showForm, setShowForm] = useState(false);
+  const [formMode, setFormMode] = useState<FormMode | null>(null);
   const sorted = [...bills].sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 
   return (
@@ -59,18 +63,27 @@ export function BillsSection({
         title="Bills"
         count={bills.length}
         action={
-          <PrimaryButton type="button" onClick={() => setShowForm((v) => !v)}>
-            {showForm ? "Cancel" : "+ Add"}
+          <PrimaryButton
+            type="button"
+            onClick={() => setFormMode((m) => (m ? null : { type: "add" }))}
+          >
+            {formMode ? "Cancel" : "+ Add"}
           </PrimaryButton>
         }
       />
 
-      {showForm && (
+      {formMode && (
         <BillForm
+          key={formMode.type === "edit" ? formMode.bill.id : "add"}
           accounts={accounts}
+          initial={formMode.type === "edit" ? formMode.bill : undefined}
           onSubmit={(input) => {
-            onAdd(input);
-            setShowForm(false);
+            if (formMode.type === "edit") {
+              onUpdate(formMode.bill.id, input);
+            } else {
+              onAdd(input);
+            }
+            setFormMode(null);
           }}
         />
       )}
@@ -84,7 +97,11 @@ export function BillsSection({
             const account = accounts.find((a) => a.id === bill.accountId);
             return (
               <GroupedRow key={bill.id}>
-                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <button
+                  type="button"
+                  onClick={() => setFormMode({ type: "edit", bill })}
+                  className="flex min-w-0 flex-1 flex-col gap-1 text-left"
+                >
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="font-medium">{bill.name}</span>
                     <Badge tone={STATUS_TONE[status]}>{STATUS_LABEL[status]}</Badge>
@@ -95,7 +112,7 @@ export function BillsSection({
                     {account && <span>· {account.name}</span>}
                     {bill.recurrence !== "none" && <span>· {RECURRENCE_LABEL[bill.recurrence]}</span>}
                   </div>
-                </div>
+                </button>
                 <div className="flex shrink-0 items-center gap-3">
                   <span className="font-mono text-sm tabular-nums">{formatCurrency(bill.amount)}</span>
                   <Switch
@@ -118,17 +135,19 @@ export function BillsSection({
 
 function BillForm({
   accounts,
+  initial,
   onSubmit,
 }: {
   accounts: Account[];
+  initial?: Bill;
   onSubmit: (input: Omit<Bill, "id" | "status">) => void;
 }) {
-  const [name, setName] = useState("");
-  const [amount, setAmount] = useState("");
-  const [dueDate, setDueDate] = useState(todayIso());
-  const [accountId, setAccountId] = useState("");
-  const [recurrence, setRecurrence] = useState<BillRecurrence>("none");
-  const [autopay, setAutopay] = useState(false);
+  const [name, setName] = useState(initial?.name ?? "");
+  const [amount, setAmount] = useState(initial ? String(initial.amount) : "");
+  const [dueDate, setDueDate] = useState(initial?.dueDate ?? todayIso());
+  const [accountId, setAccountId] = useState(initial?.accountId ?? "");
+  const [recurrence, setRecurrence] = useState<BillRecurrence>(initial?.recurrence ?? "none");
+  const [autopay, setAutopay] = useState(initial?.autopay ?? false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -205,7 +224,7 @@ function BillForm({
         <Switch checked={autopay} onChange={setAutopay} label="Autopay" />
         Autopay
       </div>
-      <PrimaryButton type="submit">Save</PrimaryButton>
+      <PrimaryButton type="submit">{initial ? "Save changes" : "Save"}</PrimaryButton>
     </form>
   );
 }
