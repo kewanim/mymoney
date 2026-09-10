@@ -40,18 +40,36 @@ export function ReceiptsSection({ bills }: { bills: Bill[] }) {
   const [uploading, setUploading] = useState(false);
 
   async function refresh() {
-    setError(null);
     try {
       const result = await CloudSync.fetchReceipts();
       setReceipts(result.receipts);
+      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't load receipts.");
     }
   }
 
+  // The load-on-mount fetch is defined and called inline here (React's own
+  // documented pattern for fetching in an Effect) rather than just calling
+  // the shared `refresh` above by reference — react-hooks/set-state-in-effect
+  // flags an effect handing off to an externally-defined function that sets
+  // state, even when that function is fully async.
   useEffect(() => {
-    if (supported) refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!supported) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const result = await CloudSync.fetchReceipts();
+        if (cancelled) return;
+        setReceipts(result.receipts);
+        setError(null);
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Couldn't load receipts.");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [supported]);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -94,7 +112,7 @@ export function ReceiptsSection({ bills }: { bills: Bill[] }) {
     <Card>
       <SectionHeading title="Receipts" count={receipts?.length ?? 0} action={null} />
       <p className="mb-3 text-sm text-ink-soft">
-        Attach a photo or PDF to a bill. It's stored in your iCloud, not anywhere of ours.
+        Attach a photo or PDF to a bill. It&apos;s stored in your iCloud, not anywhere of ours.
       </p>
 
       <div className="mb-4 flex flex-wrap items-end gap-2 rounded-2xl border border-field-border p-3">

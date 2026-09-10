@@ -117,9 +117,6 @@ export function useCloudSync({
     return () => {
       if (pushTimer.current) clearTimeout(pushTimer.current);
     };
-    // pullCompleted is a ref (doesn't trigger reruns) — the data arrays are
-    // the real dependencies here.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supported, accounts, bills, debts, income]);
 
   return status;
