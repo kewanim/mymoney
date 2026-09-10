@@ -13,10 +13,13 @@ import { Card, SectionHeading, PrimaryButton, FieldInput } from "./ui";
 
 const PROVIDERS: AIProvider[] = ["claude", "openai", "gemini"];
 
+type VerifyState = { status: "idle" } | { status: "checking" } | { status: "ok" } | { status: "error"; message: string };
+
 export function AISettingsSection() {
   const settings = useAISettings();
   const [draftKey, setDraftKey] = useState("");
   const [saved, setSaved] = useState(false);
+  const [verify, setVerify] = useState<VerifyState>({ status: "idle" });
 
   const activeKey = settings.apiKeys[settings.provider] ?? "";
   const help = PROVIDER_KEY_HELP[settings.provider];
@@ -25,6 +28,7 @@ export function AISettingsSection() {
     setProvider(provider);
     setDraftKey("");
     setSaved(false);
+    setVerify({ status: "idle" });
   }
 
   function handleSave(e: React.FormEvent) {
@@ -33,6 +37,24 @@ export function AISettingsSection() {
     setApiKey(settings.provider, draftKey.trim());
     setDraftKey("");
     setSaved(true);
+    setVerify({ status: "idle" });
+  }
+
+  async function handleTestKey() {
+    const keyToTest = (draftKey || activeKey).trim();
+    if (!keyToTest) return;
+    setVerify({ status: "checking" });
+    try {
+      const res = await fetch("/api/verify-key", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider: settings.provider, apiKey: keyToTest }),
+      });
+      const data = (await res.json()) as { ok: boolean; error?: string };
+      setVerify(data.ok ? { status: "ok" } : { status: "error", message: data.error ?? "That key didn't work." });
+    } catch {
+      setVerify({ status: "error", message: "Couldn't reach the server to check that key." });
+    }
   }
 
   return (
@@ -77,6 +99,7 @@ export function AISettingsSection() {
             onChange={(e) => {
               setDraftKey(e.target.value);
               setSaved(false);
+              setVerify({ status: "idle" });
             }}
             placeholder={activeKey ? "Enter a new key to replace it" : "Paste your API key"}
             className="flex-1"
@@ -85,6 +108,18 @@ export function AISettingsSection() {
           <PrimaryButton type="submit" disabled={!draftKey.trim()}>
             Save
           </PrimaryButton>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleTestKey}
+            disabled={!(draftKey || activeKey).trim() || verify.status === "checking"}
+            className="rounded-full bg-field px-3 py-1 text-xs font-medium text-ink-soft transition-colors hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {verify.status === "checking" ? "Testing…" : "Test key"}
+          </button>
+          {verify.status === "ok" && <span className="text-xs text-good">That key works.</span>}
+          {verify.status === "error" && <span className="text-xs text-critical">{verify.message}</span>}
         </div>
         {saved && <p className="text-xs text-good">Saved on this device.</p>}
         <p className="text-xs text-ink-soft">

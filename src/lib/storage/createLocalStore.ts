@@ -4,25 +4,61 @@
 // the store, and with each other, without manual refetching after a mutation.
 
 import { useSyncExternalStore } from "react";
+import { bumpLocalChangeClock } from "./changeClock";
 
 interface Entity {
   id: string;
 }
 
+// Every write also mirrors to a shadow "<key>:backup" entry. Without this, a
+// single corrupted read (an interrupted write, the WebView getting killed
+// mid-save) used to look identical to "genuinely empty" — readAll silently
+// returned [], and the very next create/update/remove then wrote that empty
+// array back over the primary key, permanently erasing real data. Real
+// incident: this is exactly how a full bills list was lost while debts (a
+// separate key, unaffected) survived. Now a corrupted or missing primary key
+// self-heals from the mirror instead of resetting to empty.
+function backupKey(storageKey: string): string {
+  return `${storageKey}:backup`;
+}
+
 function readAll<T>(storageKey: string): T[] {
   if (typeof window === "undefined") return [];
   const raw = window.localStorage.getItem(storageKey);
-  if (!raw) return [];
-  try {
-    return JSON.parse(raw) as T[];
-  } catch {
-    return [];
+  if (raw !== null) {
+    try {
+      return JSON.parse(raw) as T[];
+    } catch {
+      console.error(`MyMoney: "${storageKey}" contained invalid JSON — recovering from backup.`);
+    }
   }
+
+  // Primary is missing or unparsable. A backup mirror only exists once this
+  // key has been written at least once, so finding one here means the
+  // primary's current state is anomalous, not a legitimate fresh store.
+  const backupRaw = window.localStorage.getItem(backupKey(storageKey));
+  if (backupRaw !== null) {
+    try {
+      const recovered = JSON.parse(backupRaw) as T[];
+      window.localStorage.setItem(storageKey, backupRaw);
+      console.error(
+        `MyMoney: "${storageKey}" was missing or corrupted — recovered ${recovered.length} item(s) from backup.`,
+      );
+      return recovered;
+    } catch {
+      console.error(`MyMoney: "${storageKey}" backup copy was also corrupted.`);
+    }
+  }
+
+  return [];
 }
 
 function writeAll<T>(storageKey: string, items: T[]): void {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(storageKey, JSON.stringify(items));
+  const serialized = JSON.stringify(items);
+  window.localStorage.setItem(storageKey, serialized);
+  window.localStorage.setItem(backupKey(storageKey), serialized);
+  bumpLocalChangeClock();
 }
 
 export function createLocalStore<T extends Entity>(storageKey: string) {

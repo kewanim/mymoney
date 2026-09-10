@@ -14,11 +14,14 @@ import { SmartEntry } from "./SmartEntry";
 import { AISettingsSection } from "./AISettingsSection";
 import { ReminderSettingsSection } from "./ReminderSettingsSection";
 import { BackupSection } from "./BackupSection";
+import { CloudSyncSection } from "./CloudSyncSection";
+import { ReceiptsSection } from "./ReceiptsSection";
 import { BottomTabBar } from "./BottomTabBar";
 import { useReminderSettings } from "@/lib/reminderSettings";
 import { rescheduleReminders } from "@/lib/notifications";
+import { useCloudSync } from "@/lib/cloudSync/useCloudSync";
 
-type TabId = "overview" | "bills" | "debts" | "accounts" | "income";
+type TabId = "overview" | "bills" | "debts" | "accounts" | "income" | "receipts";
 
 const TITLES: Record<TabId, string> = {
   overview: "Dashboard",
@@ -26,6 +29,7 @@ const TITLES: Record<TabId, string> = {
   debts: "Debts",
   accounts: "Accounts",
   income: "Income",
+  receipts: "Receipts",
 };
 
 export function Dashboard() {
@@ -35,6 +39,7 @@ export function Dashboard() {
   const income = incomeStore.useAll();
   const reminderSettings = useReminderSettings();
   const [tab, setTab] = useState<TabId>("overview");
+  const cloudSyncStatus = useCloudSync({ accounts, bills, debts, income });
 
   // Recompute and reschedule every local notification whenever the
   // underlying data or the reminder preferences change (no-ops outside the
@@ -75,6 +80,7 @@ export function Dashboard() {
         {tab === "overview" && (
           <>
             <ReminderBanner bills={bills} debts={debts} />
+            <CloudSyncSection status={cloudSyncStatus} />
             <SummaryStrip accounts={accounts} bills={bills} debts={debts} />
             <PayFirstSection bills={bills} debts={debts} />
             <IncomeTargetSection accounts={accounts} bills={bills} debts={debts} income={income} />
@@ -117,6 +123,8 @@ export function Dashboard() {
         {tab === "income" && (
           <IncomeSection income={income} onAdd={incomeStore.create} onRemove={incomeStore.remove} />
         )}
+
+        {tab === "receipts" && <ReceiptsSection bills={bills} />}
       </div>
 
       <BottomTabBar active={tab} onChange={(id) => setTab(id as TabId)} />

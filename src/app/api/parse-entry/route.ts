@@ -5,8 +5,9 @@ import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
-import ExcelJS from "exceljs";
 import { todayIso } from "@/lib/format";
+import { statusFromProviderError } from "@/lib/aiProviderErrors";
+import { xlsxToText } from "@/lib/xlsxToText";
 
 // Server-only route. The API key comes from the client on every request —
 // each user brings their own key (Claude/ChatGPT/Gemini), stored only in
@@ -23,38 +24,6 @@ const PROVIDER_LABEL: Record<AIProvider, string> = {
   openai: "ChatGPT",
   gemini: "Gemini",
 };
-
-// Cell values from ExcelJS can be primitives, Dates, or rich objects
-// (formula results, hyperlinks, rich text runs) — normalize each to plain text.
-function cellText(value: ExcelJS.CellValue): string {
-  if (value == null) return "";
-  if (value instanceof Date) return value.toISOString().slice(0, 10);
-  if (typeof value === "object") {
-    if ("result" in value && value.result != null) return String(value.result);
-    if ("text" in value && value.text != null) return String(value.text);
-    if ("richText" in value && Array.isArray(value.richText)) {
-      return value.richText.map((run) => run.text ?? "").join("");
-    }
-    return "";
-  }
-  return String(value);
-}
-
-async function xlsxToText(buffer: Buffer): Promise<string> {
-  const workbook = new ExcelJS.Workbook();
-  // exceljs's bundled type declarations predate @types/node's generic Buffer<T>,
-  // so a real Buffer instance still needs a cast to satisfy its exact shape.
-  await workbook.xlsx.load(buffer as unknown as Parameters<typeof workbook.xlsx.load>[0]);
-  const parts: string[] = [];
-  workbook.eachSheet((worksheet) => {
-    parts.push(`--- Sheet: ${worksheet.name} ---`);
-    worksheet.eachRow((row) => {
-      const values = (row.values as ExcelJS.CellValue[]).slice(1);
-      parts.push(values.map(cellText).join(", "));
-    });
-  });
-  return parts.join("\n");
-}
 
 const ParsedEntrySchema = z.object({
   kind: z.enum(["bill", "debt"]),
@@ -185,6 +154,8 @@ async function extractWithOpenAI(apiKey: string, inputs: RawInput[]): Promise<Pa
   const client = new OpenAI({ apiKey });
   const content = inputs.map((input) => {
     if (input.kind === "text") return { type: "text" as const, text: input.text };
+    // Unreachable at runtime — the guard above already threw if any input
+    // was a PDF — but TS needs this arm to narrow `input` to "image" below.
     if (input.kind === "pdf") throw new Error("PDF uploads aren't supported with ChatGPT yet.");
     return {
       type: "image_url" as const,
@@ -295,7 +266,6 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("parse-entry error", err);
     const message = err instanceof Error ? err.message : `Something went wrong talking to ${PROVIDER_LABEL[provider]}.`;
-    const status = err instanceof Anthropic.APIError || err instanceof OpenAI.APIError ? (err.status ?? 502) : 502;
-    return NextResponse.json({ error: message }, { status });
+    return NextResponse.json({ error: message }, { status: statusFromProviderError(err) });
   }
 }

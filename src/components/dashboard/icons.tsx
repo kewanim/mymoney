@@ -85,6 +85,22 @@ export function CardIcon({ className, filled }: IconProps) {
   );
 }
 
+export function ReceiptIcon({ className, filled }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M6.5 3.5h11v17l-2.2-1.5-2.3 1.5-2.3-1.5-2.2 1.5-2-1.5Z"
+        className={base}
+        strokeWidth={1.8}
+        strokeLinejoin="round"
+        fill={filled ? "currentColor" : "none"}
+        fillOpacity={filled ? 0.18 : 0}
+      />
+      <path d="M9 8h6M9 11.3h6M9 14.6h3.5" className={base} strokeWidth={1.6} strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function DollarIcon({ className, filled }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className}>
